@@ -1,0 +1,12 @@
+Package: LT2D
+Type: Package
+Title: Line transect estimation in two dimensions
+Version: 1.0
+Date: 2015-01-11
+Author: David Borchers and Martin Cox
+Maintainer: David Borchers <dlb@st-andrews.ac.uk>
+Description: Density and abundance estimation using line transect survey data with forward distances to 
+detections (assuming continuous availability).
+License: GPL (>= 2)
+Depends: MASS (>= 7.3-23)
+LinkingTo: MASS
