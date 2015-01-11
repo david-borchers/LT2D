@@ -1793,9 +1793,9 @@ phatInterval=function(fit,type='LOGNORM',
 #'@export
 #'@return data frame with:
 #'\code{phat} estimate of \eqn{\hat p}    
-#'\code{CV.phat} estimate of \eqn{CV]\hat p]} 
+#'\code{CV.phat} estimate of \eqn{CV[\hat p]} 
 #'\code{interval} confidence interval specified in the \code{interval} argument in \link{phatInterval}
-#'\code(lower.bound} lower bound of \eqn{\hat p}
+#'\code{lower.bound} lower bound of \eqn{\hat p}
 #'\code{upper.bound} upper bound of \eqn{\hat p}      
 #'and optionally if n!=NULL
 #'\code{n} number of detected animals
