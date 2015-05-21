@@ -208,7 +208,9 @@ pi.norm=function(x,logphi,w)
   if(any(x>w)) stop("x can't be greater than w")
   mu=logphi[1]
   sigma=exp(logphi[2])
-  f=dnorm(x,mean=mu,sd=sigma)/(pnorm(w,mean=mu,sd=sigma)-pnorm(0,mean=mu,sd=sigma))
+  f=dnorm(x,mean=mu,sd=sigma)
+  denom=(pnorm(w,mean=mu,sd=sigma)-pnorm(0,mean=mu,sd=sigma))
+  if(denom>0) f=f/denom
   return(f)
 }
 
@@ -566,7 +568,7 @@ negloglik.yx=function(y,x,pars,hr,ystart,pi.x,w,length.b=2)
   num=sum(log(fyx(y,x,b,hr,ystart)) + log(pi.x(x,logphi,w)))
   # calculate denominator:
   int=integrate(f=p.pi.x,lower=0,upper=w,b=b,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w)
-#  F.x=function(x,b,hr,ystart,pi.x,logphi,w) return((1-px(x,b,hr,ystart))*pi.x(x,logphi,w))
+  #  F.x=function(x,b,hr,ystart,pi.x,logphi,w) return((1-px(x,b,hr,ystart))*pi.x(x,logphi,w))
 #  int=integrate(f=F.x,lower=0,upper=w,b=b,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w)
   denom=log(int$value)
   # likelihood:
