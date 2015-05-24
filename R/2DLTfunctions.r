@@ -176,7 +176,7 @@ h.const=function(y,x,b=1) return(rep(b[1],length(y)))
 #'type='l',xlab='Perp. distance, x',ylab=expression(pi(x)))
 #'@export
 pi.hnorm=function(x,logphi,w){
-  hnF=function(x,logphi) exp(-x^2/(2*logphi[1]^2))
+  hnF=function(x,logphi) exp(-x^2/(2*exp(logphi[1])^2))
   return(hnF(x,logphi)/integrate(hnF,0,w,logphi)$value)
 }
 
@@ -194,8 +194,8 @@ pi.hnorm=function(x,logphi,w){
 #'type='l',xlab='Perp. distance, x',ylab=expression(pi(x)))
 #'@export
 pi.chnorm=function(x,logphi,w){
-  hnF=function(x,logphi) 1-exp(-x^2/(2*logphi[1]^2))
-  return(hnF(x,logphi)/integrate(hnF,0,w,logphi)$value)
+  chnF=function(x,logphi) 1-exp(-(x-logphi[1])^2/(2*exp(logphi[2])^2))
+  return(chnF(x,logphi)/integrate(chnF,0,w,logphi)$value)
 }
 
 
@@ -898,7 +898,9 @@ negloglik.yx2=function(y,x,ps,hr,b,ys,pi.x,logphi,w)
 #'@export
 fityx=function(y,x,b,hr,ystart,pi.x,logphi,w,control=list(),hessian=FALSE,corrFlag=0.7,...)
 {
-  if(as.character(substitute(pi.x))=="pi.const") pars=b else pars=c(b,logphi)
+  piname=as.character(substitute(pi.x))
+  hrname=as.character(substitute(hr))
+  if(piname=="pi.const") pars=b else pars=c(b,logphi)
   length.b=length(b)
   fit=optim(par=pars,fn=negloglik.yx,y=y,x=x,hr=hr,ystart=ystart,pi.x=pi.x,w=w,
             length.b=length.b,
@@ -908,8 +910,8 @@ fityx=function(y,x,b,hr,ystart,pi.x,logphi,w,control=list(),hessian=FALSE,corrFl
     warning('Convergence issue (code = ', fit$convergence,') . Check optim() help.')
     fit$error=TRUE
   }
-  fit$hr=hr
-  fit$pi.x=pi.x
+  fit$hr=hrname
+  fit$pi.x=piname
   fit$ystart=ystart
   fit$w=w
   fit$b=fit$par[1:length.b]  # ***
@@ -1219,7 +1221,8 @@ plotfit.x=function(x,fit,nclass=10,nint=100,
                    N=NULL,...)
 {
   Nhat.yx=bias=NULL
-  b=fit$b; hr=fit$hr; ystart=fit$ystart; pi.x=fit$pi.x; logphi=fit$logphi; w=fit$w
+  b=fit$b; hr=match.fun(fit$hr); ystart=fit$ystart; pi.x=match.fun(fit$pi.x)
+  logphi=fit$logphi; w=fit$w
   x=x[x>=0 & x<=w]
   f.x=p.x.std=adbnTRUE=0
   # calculate stuff to plot:
