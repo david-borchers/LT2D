@@ -180,6 +180,25 @@ pi.hnorm=function(x,logphi,w){
   return(hnF(x,logphi)/integrate(hnF,0,w,logphi)$value)
 }
 
+#'@title Complementary half-normal form for perpendicular animal density function
+#'
+#'@description Complementary half-normal distribution of perpendicular animal density.  
+#'Truncation occurs at x=w (the perpendicular truncation distance)
+#'
+#'@param x prependicular trackline distance
+#'@param logphi numeric vector; parameters, some of which may be logged
+#'@param w perpendicular truncation distance
+#'@return \eqn{\pi(x)} animal density at distance x
+#'@examples
+#'plot(seq(0,1,length=100),pi.hnorm(x=seq(0,1,length=100),logphi=0.5,w=1),
+#'type='l',xlab='Perp. distance, x',ylab=expression(pi(x)))
+#'@export
+pi.chnorm=function(x,logphi,w){
+  hnF=function(x,logphi) 1-exp(-x^2/(2*logphi[1]^2))
+  return(hnF(x,logphi)/integrate(hnF,0,w,logphi)$value)
+}
+
+
 #'@title Truncated normal form for perpendicular animal density function
 #'
 #'@description Truncated normal distribution of perpendicular animal density.  
