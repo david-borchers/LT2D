@@ -42,7 +42,7 @@ h1=function(y,x,b)
 #'@export
 #'@seealso \code{\link{h1}}
 h2=function(y,x,b)
-#-------------------------------------------------------------------------------
+  #-------------------------------------------------------------------------------
 # Detection hazard function prob(detect | available at x,y),
 # Corresponding to Hayes and Buckland (1983) k(r,y)=a*sqrt(r^2-y^2)/r^(b+1); b>2
 # on p37.
@@ -106,7 +106,7 @@ h21=function(y,x,b)
 #'@seealso \code{\link{h1}} \code{\link{h2}}
 #'@export
 h.exp2=function(y,x,b=c(0,0))
-#----------------------------------------------------------
+  #----------------------------------------------------------
 # Detection hazard function prob(detect | available at x,y),
 # 2-paramter Exponential power hazard model of Skaug & Schweder 1999.
 # (gama fixed equal to 2).
@@ -133,7 +133,7 @@ h.exp2=function(y,x,b=c(0,0))
 #'@seealso \code{\link{h1}} \code{\link{h2}} \code{\link{h.exp2}}
 #'@export
 h.okamura=function(y,x,b=c(0,0))
-#----------------------------------------------------------
+  #----------------------------------------------------------
 # Detection hazard function prob(detect | available at x,y).
 # From Okamura's paper
 #----------------------------------------------------------
@@ -193,7 +193,7 @@ pi.hnorm=function(x,logphi,w){
 #'plot(seq(0,1,length=100),pi.norm(x=seq(0,1,length=100),logphi=c(0.5,log(0.3)),w=1))
 #'@export
 pi.norm=function(x,logphi,w)
-#-------------------------------------------------------------------------------
+  #-------------------------------------------------------------------------------
 # Animal density function (with respect to perp dist, x).
 # Inputs:
 #  logtphi: theta is vector of parameters, some of which may be logged
@@ -210,7 +210,7 @@ pi.norm=function(x,logphi,w)
   sigma=exp(logphi[2])
   f=dnorm(x,mean=mu,sd=sigma)
   denom=(pnorm(w,mean=mu,sd=sigma)-pnorm(0,mean=mu,sd=sigma))
-  if(denom>0) f=f/denom
+  if(denom>0) f=f/denom else f=0
   return(f)
 }
 
@@ -251,13 +251,13 @@ hr.to.p=function(x,b,hr){
     stop("b must be vector of length 2.")
   }
   theta=exp(b)
-    if(theta[2]<=1) {
-      warning("exp(b[2])<=1 so setting it equal to 1+1e-10")
-      theta[2]=1+1e-10 # gamma can't deal with zero, so get close to it
-    }
-    a1=(theta[1]*gamma((theta[2]-1)/2)*gamma(0.5))/(2*gamma(theta[2]/2))
-    return(1-exp(-a1*x^(-(theta[2]-1))))
+  if(theta[2]<=1) {
+    warning("exp(b[2])<=1 so setting it equal to 1+1e-10")
+    theta[2]=1+1e-10 # gamma can't deal with zero, so get close to it
   }
+  a1=(theta[1]*gamma((theta[2]-1)/2)*gamma(0.5))/(2*gamma(theta[2]/2))
+  return(1-exp(-a1*x^(-(theta[2]-1))))
+}
 
 
 #' @title Perpendicular animal density function calulated from hazard rate \code{h1}
@@ -408,7 +408,7 @@ hr2.to.p=function(x,b,w){
 #'persp(gridx,gridy,t(f),theta=45,phi=35,zlab="f(y|x)")
 #'@export
 fyx=function(y,x,b,hr,ystart,nint=100)
-#-------------------------------------------------------------------------------
+  #-------------------------------------------------------------------------------
 # Returns pdf  of "waiting distance" f(y,x)=h(y,x)*exp(-\int_y^ystart h(t,x) dt).
 # Inputs:
 #  y       : forward dist. (scalar or vector)
@@ -424,18 +424,28 @@ fyx=function(y,x,b,hr,ystart,nint=100)
   n=length(x)
   intval=rep(NA,n)
   hr=match.fun(hr)
-  ylo=1e-10  # set to avoid evaluating hr at y=0, which gives Inf
+#  ylo=1e-10  # set to avoid evaluating hr at y=0, which gives Inf
   for(i in 1:n) {
-    y0=max(y[i],ylo)
-    dy=(ystart-y0)/nint/2                           # for crude integration
-    yy=seq(y0,ystart,length=(nint+1))[-(nint+1)]+dy # for crude integration
+#    y0=max(y[i],ylo)
+#    dy=(ystart-y0)/nint/2                           # for crude integration
+#    yy=seq(y0,ystart,length=(nint+1))[-(nint+1)]+dy # for crude integration
+    dy=(ystart-y[i])/nint/2                           # for crude integration
+    yy=seq(y[i],ystart,length=(nint+1))[-(nint+1)]+dy # for crude integration
+    h=hr(yy,rep(x[i],nint),b)
     int=sum(hr(yy,rep(x[i],nint),b)*dy*2)  # crude integration
     intval[i]=exp(-int)
-#    int=integrate(f=hr,lower=max(y[i],ylo),upper=ystart,x=x[i],b=b)
-#    intval[i]=exp(-int$value)
+    #    int=integrate(f=hr,lower=max(y[i],ylo),upper=ystart,x=x[i],b=b)
+    #    intval[i]=exp(-int$value)
   }
-  f=hr(y,x,b)*intval
-  return(f)
+  hrval=hr(y,x,b)
+  bads=which(hrval>=.Machine$double.xmax) # identify infinite hazards
+  if(length(bads)>0) { # infinite hazard so p(detect)=0
+    f[bads]=.Machine$double.xmax
+    f[-bads]=hr(y[-bads],x[-bads],b)*intval[-bads]
+  }else{
+    f=hr(y,x,b)*intval
+  }
+return(f)
 }
 
 #'@title Numerical calculation of perpendicular detection function from a hazard
@@ -456,7 +466,7 @@ fyx=function(y,x,b,hr,ystart,nint=100)
 #' xlab="prep. distance, x",ylab="p(x)")
 #'@export
 px=function(x,b,hr,ystart,nint=100)
-#-------------------------------------------------------------------------------
+  #-------------------------------------------------------------------------------
 # Returns perp dist detection function p(x).
 # Inputs:
 #  x       : perp. dist. (scalar or vector)
@@ -474,9 +484,9 @@ px=function(x,b,hr,ystart,nint=100)
   dy=(ystart-0)/nint/2                          # for crude integration
   y=seq(0,ystart,length=(nint+1))[-(nint+1)]+dy # for crude integration
   for(i in 1:n) {
-     p[i]=sum(fyx(y,rep(x[i],nint),b,hr,ystart)*dy*2)
-#    int=integrate(f=fyx,lower=0,upper=ystart,x=x[i],b=b,hr=hr,ystart=ystart)
-#    p[i]=int$value
+    p[i]=min(1,sum(fyx(y,rep(x[i],nint),b,hr,ystart)*dy*2)) # constrain to max of 1
+    #    int=integrate(f=fyx,lower=0,upper=ystart,x=x[i],b=b,hr=hr,ystart=ystart)
+    #    p[i]=int$value
   }
   return(p)
 }
@@ -502,7 +512,7 @@ px=function(x,b,hr,ystart,nint=100)
 #'@examples
 #'p.pi.x(x,b,hr,ystart,pi.x,logphi,w) 
 p.pi.x=function(x,b,hr,ystart,pi.x,logphi,w) 
-return(px(x,b,hr,ystart)*pi.x(x,logphi,w))
+  return(px(x,b,hr,ystart)*pi.x(x,logphi,w))
 
 #F.x=function(x,b,hr,ystart,pi.x,logphi,w) return((1-px(x,b,hr,ystart))*pi.x(x,logphi,w))
 
@@ -538,7 +548,7 @@ return(px(x,b,hr,ystart)*pi.x(x,logphi,w))
 #'@seealso \code{\link{simXY}}
 #'@export
 negloglik.yx=function(y,x,pars,hr,ystart,pi.x,w,length.b=2)
-#-------------------------------------------------------------------------------
+  #-------------------------------------------------------------------------------
 # Returns negative log likelihood for forward dist y and perp. dist. x.
 # Inputs:
 #  y       : forward distances (scalar or vector)
@@ -556,7 +566,7 @@ negloglik.yx=function(y,x,pars,hr,ystart,pi.x,w,length.b=2)
 #-------------------------------------------------------------------------------
 {
   if(length(y)!=length(x)) stop("Lengths of x and y must be the same.")
-
+  
   hr=match.fun(hr)
   pi.x=match.fun(pi.x)
   n=length(y)
@@ -569,7 +579,7 @@ negloglik.yx=function(y,x,pars,hr,ystart,pi.x,w,length.b=2)
   # calculate denominator:
   int=integrate(f=p.pi.x,lower=0,upper=w,b=b,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w)
   #  F.x=function(x,b,hr,ystart,pi.x,logphi,w) return((1-px(x,b,hr,ystart))*pi.x(x,logphi,w))
-#  int=integrate(f=F.x,lower=0,upper=w,b=b,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w)
+  #  int=integrate(f=F.x,lower=0,upper=w,b=b,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w)
   denom=log(int$value)
   # likelihood:
   llik=num-n*denom
@@ -671,49 +681,49 @@ histline <-
            ylim=range(height),xlab="x",ylab="y",
            transpose=FALSE,...){
     #-------------------------------------------------------------------------------------
-# Takes bar heights (height) and cutbpoints (breaks), and constructs a line-only 
-# histogram from them using the function plot() (if lineonly==FALSE) or lines()
-# (if lineonly==TRUE). 
-# If fill==TRUE, uses polygon() to fill bars
-# If fill==TRUE, valid arguments to plot() or lines() are passed via argument(s) "..."
-# If outline==TRUE, only outline of histogram is plotted
-# If fill!=TRUE, valid arguments to polygon() are passed via argument(s) "..."
-#
-# DLB 2009
-#-------------------------------------------------------------------------------------
-
-  n=length(height)
-  if(length(breaks)!=(n+1)) stop("breaks must be 1 longer than height")
-  if(outline) {
-    y=c(0,rep(height,times=rep(2,n)),0)
-    x=rep(breaks,times=rep(2,(n+1)))
-  }   else {
-    y=rep(0,4*n)
-    x=rep(0,4*n+2)
-    for(i in 1:n) {
-      y[((i-1)*4+1):(i*4)]=c(0,rep(height[i],2),0)
-      x[((i-1)*4+1):(i*4)]=c(rep(breaks[i],2),rep(breaks[i+1],2))
+    # Takes bar heights (height) and cutbpoints (breaks), and constructs a line-only 
+    # histogram from them using the function plot() (if lineonly==FALSE) or lines()
+    # (if lineonly==TRUE). 
+    # If fill==TRUE, uses polygon() to fill bars
+    # If fill==TRUE, valid arguments to plot() or lines() are passed via argument(s) "..."
+    # If outline==TRUE, only outline of histogram is plotted
+    # If fill!=TRUE, valid arguments to polygon() are passed via argument(s) "..."
+    #
+    # DLB 2009
+    #-------------------------------------------------------------------------------------
+    
+    n=length(height)
+    if(length(breaks)!=(n+1)) stop("breaks must be 1 longer than height")
+    if(outline) {
+      y=c(0,rep(height,times=rep(2,n)),0)
+      x=rep(breaks,times=rep(2,(n+1)))
+    }   else {
+      y=rep(0,4*n)
+      x=rep(0,4*n+2)
+      for(i in 1:n) {
+        y[((i-1)*4+1):(i*4)]=c(0,rep(height[i],2),0)
+        x[((i-1)*4+1):(i*4)]=c(rep(breaks[i],2),rep(breaks[i+1],2))
+      }
+      x=x[1:(4*n)]
     }
-    x=x[1:(4*n)]
-  }
-  if(transpose)
-  {
-    xstore=x
-    x=y
-    y=xstore
-    xlimstore=xlim
-  }
-  if(lineonly) {
-    if(!fill) lines(x,y,...)
-    else polygon(x,y,...)
-  } else {
-    if(!fill) plot(x,y,type="l",xlim=xlim,ylim=ylim,xlab=xlab,ylab=ylab,...)
-    else {
-      plot(x,y,type="n",xlim=xlim,ylim=ylim,xlab=xlab,ylab=ylab)
-      polygon(x,y,...)
+    if(transpose)
+    {
+      xstore=x
+      x=y
+      y=xstore
+      xlimstore=xlim
+    }
+    if(lineonly) {
+      if(!fill) lines(x,y,...)
+      else polygon(x,y,...)
+    } else {
+      if(!fill) plot(x,y,type="l",xlim=xlim,ylim=ylim,xlab=xlab,ylab=ylab,...)
+      else {
+        plot(x,y,type="n",xlim=xlim,ylim=ylim,xlab=xlab,ylab=ylab)
+        polygon(x,y,...)
+      }
     }
   }
-}
 
 
 #'@title Plot the simulated positions
@@ -754,10 +764,10 @@ plotSim = function(simDat, nclass=10,xlab="", ylab="",image=FALSE,...){
   ly=plotfit.yx(y,x,est=est,nclass=nclass,plot=FALSE,lineonly=FALSE,nint=50,...)
   yd=ly$fy.[floor(seq(1,length(ly$fy.),length.out=50))]
   if(image){
-  image(x=gridx,y=gridy,
-        t(matrix(rep(adbn,length(gridy)),nrow=length(gridy),byrow=T)*yd),
-        xlab=xlab,ylab=ylab)
-  points(x,y,cex=0.4,pch=19)}
+    image(x=gridx,y=gridy,
+          t(matrix(rep(adbn,length(gridy)),nrow=length(gridy),byrow=T)*yd),
+          xlab=xlab,ylab=ylab)
+    points(x,y,cex=0.4,pch=19)}
   if(!image)
     plot(x,y,xlim=c(0,w),ylim=c(0,ystart),xlab=xlab,ylab=ylab,pch=19,cex=0.4)
   par(mar=c(0,3,1,1))
@@ -869,51 +879,52 @@ negloglik.yx2=function(y,x,ps,hr,b,ys,pi.x,logphi,w)
 #'@export
 fityx=function(y,x,b,hr,ystart,pi.x,logphi,w,control=list(),hessian=FALSE,corrFlag=0.7,...)
 {
- pars=c(b,logphi)
- length.b=length(b)
- fit=optim(par=pars,fn=negloglik.yx,y=y,x=x,hr=hr,ystart=ystart,pi.x=pi.x,w=w,
-           length.b=length.b,
-           hessian=hessian,control=control,...)
- fit$error=FALSE
- if(fit$convergence!=0){
-   warning('Convergence issue (code = ', fit$convergence,') . Check optim() help.')
- fit$error=TRUE
- }
- fit$hr=hr
- fit$pi.x=pi.x
- fit$ystart=ystart
- fit$w=w
- fit$b=fit$par[1:length.b]  # ***
- if(length.b!=length(pars)){
- fit$logphi=fit$par[(1+length.b):length(pars)]}else{
-   fit$logphi=NA
- }    # ***
- fit$AIC=2*fit$value+length(fit$par)
- if(hessian){
-   mNames=paste('b',1:length.b,sep='')
-   if(!all(is.na(fit$logphi))) mNames=c(mNames,paste('logphi',1:length(fit$logphi),sep=''))
-  fit$vcov=solve(fit$hessian)
-  if(any(diag(fit$vcov)<=0)){
-    warning('Failed to invert hessian.  Model covergance problem in fityx?')
+  if(as.character(substitute(pi.x))=="pi.const") pars=b else pars=c(b,logphi)
+  length.b=length(b)
+  fit=optim(par=pars,fn=negloglik.yx,y=y,x=x,hr=hr,ystart=ystart,pi.x=pi.x,w=w,
+            length.b=length.b,
+            hessian=hessian,control=control,...)
+  fit$error=FALSE
+  if(fit$convergence!=0){
+    warning('Convergence issue (code = ', fit$convergence,') . Check optim() help.')
     fit$error=TRUE
-    fit$CVpar=rep(NA,length(fit$par))} else {
-      fit$CVpar=sqrt(diag(solve(fit$hessian)))/abs(fit$par)}
-  fit$corr=cov2cor(fit$vcov)
-  row.names(fit$corr)=mNames
-  colnames(fit$corr)=mNames
-  corr=fit$corr
-  corr[upper.tri(corr,diag=TRUE)]=NA
-  corrIND=which(abs(corr)>corrFlag,arr.ind=T)
-  if(nrow(corrIND)){
-    warning('absolute correlation exceeds ',corrFlag,' in parameter estimates: ',
-            paste(paste(mNames[corrIND[,1]],mNames[corrIND[,2]],sep=' to '),collapse='; '))
-  fit$error=TRUE}
- }
+  }
+  fit$hr=hr
+  fit$pi.x=pi.x
+  fit$ystart=ystart
+  fit$w=w
+  fit$b=fit$par[1:length.b]  # ***
+  if(length.b!=length(pars)){
+    fit$logphi=fit$par[(1+length.b):length(pars)]
+  }else{
+      fit$logphi=NA
+  }    # ***
+  fit$AIC=2*fit$value+length(fit$par)
+  if(hessian){
+    mNames=paste('b',1:length.b,sep='')
+    if(!all(is.na(fit$logphi))) mNames=c(mNames,paste('logphi',1:length(fit$logphi),sep=''))
+    fit$vcov=solve(fit$hessian)
+    if(any(diag(fit$vcov)<=0)){
+      warning('Failed to invert hessian.  Model covergance problem in fityx?')
+      fit$error=TRUE
+      fit$CVpar=rep(NA,length(fit$par))} else {
+        fit$CVpar=sqrt(diag(solve(fit$hessian)))/abs(fit$par)}
+    fit$corr=cov2cor(fit$vcov)
+    row.names(fit$corr)=mNames
+    colnames(fit$corr)=mNames
+    corr=fit$corr
+    corr[upper.tri(corr,diag=TRUE)]=NA
+    corrIND=which(abs(corr)>corrFlag,arr.ind=T)
+    if(nrow(corrIND)){
+      warning('absolute correlation exceeds ',corrFlag,' in parameter estimates: ',
+              paste(paste(mNames[corrIND[,1]],mNames[corrIND[,2]],sep=' to '),collapse='; '))
+      fit$error=TRUE}
+  }
   return(fit)
 }
 
 negloglik.yx.w=function(y,x,pars,hr,ystart,pi.x,logphi,w)
-#-------------------------------------------------------------------------------
+  #-------------------------------------------------------------------------------
 # Returns negative log likelihood for forward dist y and perp. dist. x, taking
 # pi(x) as known.
 # Corresponding to Hayes and Buckland (1983) k(r,y)=a*sqrt(r^2-y^2)/r^(b+1); b>2
@@ -936,7 +947,7 @@ negloglik.yx.w=function(y,x,pars,hr,ystart,pi.x,logphi,w)
 #-------------------------------------------------------------------------------
 {
   if(length(y)!=length(x)) stop("Lengths of x and y must be the same.")
-
+  
   hr=match.fun(hr)
   pi.x=match.fun(pi.x)
   n=length(y)
@@ -945,8 +956,8 @@ negloglik.yx.w=function(y,x,pars,hr,ystart,pi.x,logphi,w)
   num=sum(log(fyx(y,x,b=pars,hr,ystart)) + log(pi.x(x,logphi,w)))
   # calculate denominator:
   int=integrate(f=p.pi.x,lower=0,upper=w,b=pars,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w)
-#  F.x=function(x,b,hr,ystart,pi.x,logphi,w) return((1-px(x,b,hr,ystart))*pi.x(x,logphi,w))
-#  int=integrate(f=F.x,lower=0,upper=w,b=b,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w)
+  #  F.x=function(x,b,hr,ystart,pi.x,logphi,w) return((1-px(x,b,hr,ystart))*pi.x(x,logphi,w))
+  #  int=integrate(f=F.x,lower=0,upper=w,b=b,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w)
   denom=log(int$value)
   # likelihood:
   llik=num-n*denom
@@ -958,22 +969,22 @@ negloglik.yx.w=function(y,x,pars,hr,ystart,pi.x,logphi,w)
 
 fityx.w=function(y,x,b,hr,ystart,pi.x,logphi,w,control)
 {
- pars=b
- fit=optim(par=pars,fn=negloglik.yx.w,y=y,x=x,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w,hessian=FALSE,control=control)
- fit$hr=hr
- fit$pi.x=pi.x
- fit$ystart=ystart
- fit$w=w
- fit$b=fit$par
- fit$logphi=logphi
- return(fit)
+  pars=b
+  fit=optim(par=pars,fn=negloglik.yx.w,y=y,x=x,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w,hessian=FALSE,control=control)
+  fit$hr=hr
+  fit$pi.x=pi.x
+  fit$ystart=ystart
+  fit$w=w
+  fit$b=fit$par
+  fit$logphi=logphi
+  return(fit)
 }
 
 
 
 
 negloglik.x=function(x,pars,hr,ystart,pi.x,logphi,w,nint=100)
-#-------------------------------------------------------------------------------
+  #-------------------------------------------------------------------------------
 # Returns negative log likelihood for perp. dist. x. given dbn pi.x and logphi
 # Corresponding to Hayes and Buckland (1983) k(r,y)=a*sqrt(r^2-y^2)/r^(b+1); b>2
 # on p37.
@@ -1000,8 +1011,8 @@ negloglik.x=function(x,pars,hr,ystart,pi.x,logphi,w,nint=100)
   num=sum(log(px(x,b,hr,ystart,nint)) + log(pi.x(x,logphi,w)))
   # calculate denominator:
   int=integrate(f=p.pi.x,lower=0,upper=w,b=b,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w)
-#  F.x=function(x,b,hr,ystart,pi.x,logphi,w) return((1-px(x,b,hr,ystart))*pi.x(x,logphi,w))
-#  int=integrate(f=F.x,lower=0,upper=w,b=b,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w)
+  #  F.x=function(x,b,hr,ystart,pi.x,logphi,w) return((1-px(x,b,hr,ystart))*pi.x(x,logphi,w))
+  #  int=integrate(f=F.x,lower=0,upper=w,b=b,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w)
   denom=log(int$value)
   # likelihood:
   llik=num-n*denom
@@ -1012,23 +1023,23 @@ negloglik.x=function(x,pars,hr,ystart,pi.x,logphi,w,nint=100)
 
 fitx=function(x,b,hr,ystart,pi.x,logphi,w,control)
 {
- pars=b
- fit=optim(par=pars,fn=negloglik.x,x=x,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w,hessian=FALSE,control=list(trace=5))
- fit$hr=hr
- fit$pi.x=pi.x
- fit$ystart=ystart
- fit$w=w
- fit$b=fit$par           # ***
- fit$logphi=logphi
- return(fit)
+  pars=b
+  fit=optim(par=pars,fn=negloglik.x,x=x,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w,hessian=FALSE,control=list(trace=5))
+  fit$hr=hr
+  fit$pi.x=pi.x
+  fit$ystart=ystart
+  fit$w=w
+  fit$b=fit$par           # ***
+  fit$logphi=logphi
+  return(fit)
 }
 
 
 
 
 Eyx=function(y,x,b,hr,ystart)
-#Eyx=function(y,x,b,hr,ystart,nint=500)
-#-------------------------------------------------------------------------------
+  #Eyx=function(y,x,b,hr,ystart,nint=500)
+  #-------------------------------------------------------------------------------
 # Returns Expectation \int_y^ystart h(t,x) dt.
 # Inputs:
 #  y       : forward dist. (scalar or vector)
@@ -1047,9 +1058,9 @@ Eyx=function(y,x,b,hr,ystart)
   ylo=1e-5  # set to avoid evaluating hr at y=0, which gives Inf
   for(i in 1:n) {
     y0=max(y[i],ylo)
-#    dy=(ystart-y0)/nint/2                           # for crude integration
-#    yy=seq(y0,ystart,length=(nint+1))[-(nint+1)]+dy # for crude integration
-#    int[i]=sum(hr(yy,rep(x[i],nint),b)*dy*2)  # crude integration
+    #    dy=(ystart-y0)/nint/2                           # for crude integration
+    #    yy=seq(y0,ystart,length=(nint+1))[-(nint+1)]+dy # for crude integration
+    #    int[i]=sum(hr(yy,rep(x[i],nint),b)*dy*2)  # crude integration
     int[i]=integrate(f=hr,lower=max(y[i],ylo),upper=ystart,x=x[i],b=b)$value
   }
   return(int)
@@ -1085,7 +1096,7 @@ Eyx=function(y,x,b,hr,ystart)
 #'length(Y[Y!=-999])
 #' @seealso \code{\link{simXY}}
 simnhPP=function(x,b,ystart,hr,miss=TRUE,ylo=1e-5)
-#-------------------------------------------------------------------------------
+  #-------------------------------------------------------------------------------
 # Simulate non-homogeneous Poisson Process data by solving inverse CDF.
 # Inputs:
 #  x       : perp. dist. (scalar or vector)
@@ -1112,8 +1123,8 @@ simnhPP=function(x,b,ystart,hr,miss=TRUE,ylo=1e-5)
         }
       }
     } else if(u[i]<=(1-exp(-Eyx(ylo,x[i],b,hr,ystart)))) {
-        ymin=optimize(f=obj,interval=c(ylo,ystart),x[i],b,hr,ystart,u[i])
-        y[i]=ymin$minimum
+      ymin=optimize(f=obj,interval=c(ylo,ystart),x[i],b,hr,ystart,u[i])
+      y[i]=ymin$minimum
     }
   }
   return(y)
@@ -1214,44 +1225,44 @@ plotfit.x=function(x,fit,nclass=10,nint=100,
     f.x=p.xpi/mu
     adbnTRUE=pi.x(gridx,logphi,w)
   }
-    if(plot){
-      breaks=seq(0,w,length=(nclass+1))
-      hx=hist(x,breaks=breaks,plot=FALSE) # get hist bar heights
-      ymax=max(f.xfit,p.xfit.std,adbn,f.x,p.x.std,adbnTRUE,hx$density)
-      main="Fitted curves"
-      if(addTruth) main="Fitted curves (grey=true)"
-      hx=hist(x,breaks=breaks,freq=FALSE,ylim=c(0,ymax),
-              main=main,xlab="perpendicular distance (x)",ylab="pdf")
-      lines(gridx,f.xfit,lwd=1)
-      # overlay p(x), scaled to have area=1
-      lines(gridx,p.xfit.std,lty=2,col="black",lwd=2)
-      # overlay animal pdf:
-      lines(gridx,adbn,lty=3,col="black",lwd=2)
+  if(plot){
+    breaks=seq(0,w,length=(nclass+1))
+    hx=hist(x,breaks=breaks,plot=FALSE) # get hist bar heights
+    ymax=max(f.xfit,p.xfit.std,adbn,f.x,p.x.std,adbnTRUE,hx$density)
+    main="Fitted curves"
+    if(addTruth) main="Fitted curves (grey=true)"
+    hx=hist(x,breaks=breaks,freq=FALSE,ylim=c(0,ymax),
+            main=main,xlab="perpendicular distance (x)",ylab="pdf")
+    lines(gridx,f.xfit,lwd=1)
+    # overlay p(x), scaled to have area=1
+    lines(gridx,p.xfit.std,lty=2,col="black",lwd=2)
+    # overlay animal pdf:
+    lines(gridx,adbn,lty=3,col="black",lwd=2)
+    
+    legend("topright",title="Estimated",legend=c("f(x)","p(x)","pi(x)"),
+           col=c("black","black","black"),lwd=c(2,2,2),lty=c(1,2,3))
+    if(addTruth){
+      lines(gridx,f.x,col="grey",lwd=2)
+      p.x=px(gridx,b,hr,ystart,nint=nint)
+      ptot=integrate(f=px,lower=0,upper=w,b=b,hr=hr,ystart=ystart)$value
+      #      p.x.std=p.xfit.std=p.xfit/ptot
+      #      lines(gridx,p.x*p.x.std,col="grey",lty=2,lwd=2)
+      p.x.std=p.x/ptot
+      lines(gridx,p.x.std,col="grey",lty=2,lwd=2)
       
-      legend("topright",title="Estimated",legend=c("f(x)","p(x)","pi(x)"),
-             col=c("black","black","black"),lwd=c(2,2,2),lty=c(1,2,3))
-      if(addTruth){
-        lines(gridx,f.x,col="grey",lwd=2)
-        p.x=px(gridx,b,hr,ystart,nint=nint)
-        ptot=integrate(f=px,lower=0,upper=w,b=b,hr=hr,ystart=ystart)$value
-        #      p.x.std=p.xfit.std=p.xfit/ptot
-        #      lines(gridx,p.x*p.x.std,col="grey",lty=2,lwd=2)
-        p.x.std=p.x/ptot
-        lines(gridx,p.x.std,col="grey",lty=2,lwd=2)
-        
-        lines(gridx,adbnTRUE,col="grey",lty=3,lwd=2)
-      }
+      lines(gridx,adbnTRUE,col="grey",lty=3,lwd=2)
     }
-    if(!is.null(N)){
-      n=length(x)
-      Nhat.yx=n/mufit
-      bias=(Nhat.yx/N-1)*100
-      msg=paste("N=",N,"; n=",n,"; Nhat.yx=",signif(Nhat.yx,3),";``bias''=",signif(bias,3),"%\n",sep="")
-      message(msg)
-      if(plot) {
-        mtext(msg,cex=0.8)
-      }
-    }else{N=N;n=NULL;Nhat=NULL;bias=NULL}
+  }
+  if(!is.null(N)){
+    n=length(x)
+    Nhat.yx=n/mufit
+    bias=(Nhat.yx/N-1)*100
+    msg=paste("N=",N,"; n=",n,"; Nhat.yx=",signif(Nhat.yx,3),";``bias''=",signif(bias,3),"%\n",sep="")
+    message(msg)
+    if(plot) {
+      mtext(msg,cex=0.8)
+    }
+  }else{N=N;n=NULL;Nhat=NULL;bias=NULL}
   invisible(list(gridx=gridx,p.xpifit=p.xpifit,mufit=mufit,
                  f.xfit=f.xfit,p.xfit=p.xfit,ptot=ptot,p.xfit.std=p.xfit.std,adbn=adbn,
                  N=N,n=n,Nhat=Nhat.yx,bias=bias))
@@ -1272,14 +1283,14 @@ plotfit.yx=function(y,x,est,nclass=10,plot=TRUE,lineonly=FALSE,nint=100,...)
   }
   fy.=apply(fy.x,2,mean)
   if(plot){
-  if(lineonly) {lines(gridy,fy.,...)}
-  else {
-    hst=hist(y,plot=FALSE)
-    #hist(y,freq=FALSE,xlab="forward distance (y)",nclass=nclass,ylim=c(0,max(hst$intensities,fy.)))
-    hist(y,freq=FALSE,xlab="forward distance (y)",nclass=nclass,ylim=c(0,max(hst$density,fy.)),...)
-    lines(gridy,fy.,...)
-  }}
-
+    if(lineonly) {lines(gridy,fy.,...)}
+    else {
+      hst=hist(y,plot=FALSE)
+      #hist(y,freq=FALSE,xlab="forward distance (y)",nclass=nclass,ylim=c(0,max(hst$intensities,fy.)))
+      hist(y,freq=FALSE,xlab="forward distance (y)",nclass=nclass,ylim=c(0,max(hst$density,fy.)),...)
+      lines(gridy,fy.,...)
+    }}
+  
   invisible(list(gridy=gridy,fy.x=fy.x,fy.=fy.))
 }
 
@@ -1386,7 +1397,7 @@ phat=function(w,hr,b,ystart,pi.x,logphi,fit=NULL)
     ystart=fit$ystart;pi.x=fit$pi.x;logphi=fit$logphi;w=fit$w
   }
   int=integrate(f=p.pi.x,lower=0,upper=w,b=b,hr=hr,
-                  ystart=ystart,pi.x=pi.x,logphi=logphi,w=w)$value
+                ystart=ystart,pi.x=pi.x,logphi=logphi,w=w)$value
   return(int)
 }
 #--------------- Functions added by DLB 24/7/14 ------------------------------
@@ -1585,7 +1596,7 @@ poisint=function(y,x,ymin,ymax,hfun,b,pi.x,logphi,W,lscale=1){
   nx=length(x)
   ax=abs(x)
   if(length(y)!=nx) stop("Lengths of x and y must be the same.")
-  px=pix(ax,logphi,W)
+  pxx=pix(ax,logphi,W)
   f=p=p0=rep(NA,nx)
   for(i in 1:nx){
     #    p0[i]=1-Sy(ax[i],ymin,ymax,b,hfun)
@@ -1593,7 +1604,7 @@ poisint=function(y,x,ymin,ymax,hfun,b,pi.x,logphi,W,lscale=1){
     f[i]=h(y[i],ax[i],b)*(1-p[i])
   }
   #  return(list(f=f,p=p,p0=p0))
-  return(f*px*lscale)
+  return(f*pxx*lscale)
 }
 
 
@@ -1740,7 +1751,7 @@ modSelect=function(modList,modNames=NULL,tab=FALSE,digits=2,
 #'@seealso \code{\link{phat}} \code{\link{fityx}}
 #'@export
 phatInterval=function(fit,type='LOGNORM',
-                   interval=0.95){
+                      interval=0.95){
   lnci.nmin=function(stat,cv,stat.min=0,interval=interval){
     q=Mod(qnorm((1-interval)/2,0,1))
     varNhat=(stat*cv)^2
@@ -1764,7 +1775,7 @@ phatInterval=function(fit,type='LOGNORM',
   #numerical differentiation
   if(!is.numeric(fit$logphi))
   {dbyd=numericDeriv(quote(phat(w=w,b=b,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi)), c("b"))  } else {  
-  dbyd=numericDeriv(quote(phat(w=w,b=b,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi)), c("b","logphi"))  
+    dbyd=numericDeriv(quote(phat(w=w,b=b,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi)), c("b","logphi"))  
   }
   dbyd=as.vector(slot(dbyd,'gradient'))
   var.p.hat=as.vector(t(dbyd)%*%vcov%*%dbyd) #$var[hat{p}(\hat{\Beta})$
@@ -1828,17 +1839,16 @@ phatModels=function(modList,n=NULL,tab=FALSE,digits=2,...)
         phatV[i]=paste(paste(round(phatTab$phat[i],digits),
                              '(',round(phatTab$CV.phat[i],digits),')',sep=''),collapse='; ')
       tab=data.frame(phat=phatV,row.names=row.names(phatTab))
-    if(!is.null(n)){
-      NhatV=vector(length=length(modList))
-      for(i in 1:length(modList))
+      if(!is.null(n)){
+        NhatV=vector(length=length(modList))
+        for(i in 1:length(modList))
           NhatV[i]=paste(paste(round(phatTab$Nhat[i],0),
-                           '(',round(phatTab$NhatLower[i],0),',',
-                           round(phatTab$NhatUpper[i],0),
-                            ')',sep=''),collapse='; ')
-      tab=cbind.data.frame(tab,Nhat=NhatV)
+                               '(',round(phatTab$NhatLower[i],0),',',
+                               round(phatTab$NhatUpper[i],0),
+                               ')',sep=''),collapse='; ')
+        tab=cbind.data.frame(tab,Nhat=NhatV)
       }
-    return(list(res=phatTab,tab=tab))
+      return(list(res=phatTab,tab=tab))
     }
 }
-
 
