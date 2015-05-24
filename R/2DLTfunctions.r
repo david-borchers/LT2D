@@ -1412,16 +1412,17 @@ coveragep=function(fit,true.hr,true.b,true.pi.x,true.logphi,type='LOGNORM',
 #'@return Effective strip widith \eqn{\hat p}
 #'@examples phat(w=1,hr=h2,b=log(c(0.75,1)),ystart=4,pi.x=pi.norm,logphi=c(0.5,log(0.2)))
 #'@export
-phat=function(w,hr,b,ystart,pi.x,logphi,fit=NULL)
+phat=function(fit=NULL,w=NULL,hr=NULL,b=NULL,ystart=NULL,pi.x=NULL,logphi=NULL)
 {
   if(!is.null(fit)){
-    f=fit$p.pi.x; upper=fit$w; b=fit$b; hr=fit$hr
-    ystart=fit$ystart;pi.x=fit$pi.x;logphi=fit$logphi;w=fit$w
+    f=fit$p.pi.x; upper=fit$w; b=fit$b; hr=match.fun(fit$hr)
+    ystart=fit$ystart;pi.x=match.fun(fit$pi.x);logphi=fit$logphi;w=fit$w
   }
   int=integrate(f=p.pi.x,lower=0,upper=w,b=b,hr=hr,
                 ystart=ystart,pi.x=pi.x,logphi=logphi,w=w)$value
   return(int)
 }
+
 #--------------- Functions added by DLB 24/7/14 ------------------------------
 
 #' @title Simulate n sightings from NHPP
