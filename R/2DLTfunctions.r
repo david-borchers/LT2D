@@ -893,7 +893,7 @@ negloglik.yx2=function(y,x,ps,hr,b,ys,pi.x,logphi,w)
 #'simDat=simXY(N=N,pi.x=pi.x,logphi=logphi,
 #'hr=hr,b=b,w=w,ystart=ystart)
 #'x=simDat$locs$x; y=simDat$locs$y 
-#'fityx(fityx(y,x,b,hr,ystart,pi.x,logphi,w)
+#'fityx(y,x,b,hr,ystart,pi.x,logphi,w)
 #'}
 #'@seealso \code{\link{negloglik.yx}}
 #'@export
@@ -1204,7 +1204,7 @@ simnhPP=function(x,b,ystart,hr,miss=TRUE,ylo=1e-5)
 #'simDat=simXY(N=N,pi.x=pi.x,logphi=logphi,
 #'hr=hr,b=b,w=w,ystart=ystart)
 #'x=simDat$locs$x; y=simDat$locs$y 
-#'est.yx=fityx(fityx(y,x,b,hr,ystart,pi.x,logphi,w)
+#'est.yx=fityx(y,x,b,hr,ystart,pi.x,logphi,w)
 #'plotdat.yx=plotfit.x(x,est.yx,
 #'addTruth=TRUE,
 #'true.logphi=logphi,
@@ -1330,7 +1330,7 @@ plotfit.x=function(x,fit,nclass=10,nint=100,
 #'simDat=simXY(N=N,pi.x=pi.x,logphi=logphi,
 #'hr=hr,b=b,w=w,ystart=ystart)
 #'x=simDat$locs$x; y=simDat$locs$y 
-#'est.yx=fityx(fityx(y,x,b,hr,ystart,pi.x,logphi,w)
+#'est.yx=fityx(y,x,b,hr,ystart,pi.x,logphi,w)
 #'plotfit.x(y,x,est.yx,nclass=10)
 #'}
 #'@seealso \code{\link{fityx}}
@@ -1397,7 +1397,7 @@ plotfit.y=function(y,x,est,nclass=10,breaks=NULL,plot=TRUE,lineonly=FALSE,nint=1
 #'simDat=simXY(N=N,pi.x=pi.x,logphi=logphi,
 #'hr=hr,b=b,w=w,ystart=ystart)
 #'x=simDat$locs$x; y=simDat$locs$y 
-#'est.yx=fityx(fityx(y,x,b,hr,ystart,pi.x,logphi,w)
+#'est.yx=fityx(y,x,b,hr,ystart,pi.x,logphi,w)
 #'coveragep(fit=est.yx,true.hr=hr,true.b=b,interval=0.95,
 #'  true.pi.x=pi.x,true.logphi=logphi,verbose=TRUE)
 #'}     
@@ -1821,7 +1821,7 @@ modSelect=function(modList,modNames=NULL,tab=FALSE,digits=2,
 #'simDat=simXY(N=N,pi.x=pi.x,logphi=logphi,
 #'hr=hr,b=b,w=w,ystart=ystart)
 #'x=simDat$locs$x; y=simDat$locs$y 
-#'est.yx=fityx(fityx(y,x,b,hr,ystart,pi.x,logphi,w)
+#'est.yx=fityx(y,x,b,hr,ystart,pi.x,logphi,w)
 #'phatInterval(fit=est.yx,interval=0.95)
 #'}     
 #'@seealso \code{\link{phat}} \code{\link{fityx}}
