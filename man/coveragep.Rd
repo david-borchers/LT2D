@@ -45,7 +45,7 @@ N=50 #true number of animals
 simDat=simXY(N=N,pi.x=pi.x,logphi=logphi,
 hr=hr,b=b,w=w,ystart=ystart)
 x=simDat$locs$x; y=simDat$locs$y
-est.yx=fityx(fityx(y,x,b,hr,ystart,pi.x,logphi,w)
+est.yx=fityx(y,x,b,hr,ystart,pi.x,logphi,w)
 coveragep(fit=est.yx,true.hr=hr,true.b=b,interval=0.95,
  true.pi.x=pi.x,true.logphi=logphi,verbose=TRUE)
 }

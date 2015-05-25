@@ -4,14 +4,12 @@
 \alias{plotfit.x}
 \title{Plot fitted hazard and perpendicular denisty distribution}
 \usage{
-plotfit.x(x, fit, nclass = 10, nint = 100, plot = TRUE,
+plotfit.x(x, est, nclass = 10, nint = 100, plot = TRUE,
   addTruth = FALSE, true.pi.x = NULL, true.logphi = NULL,
   true.hr = NULL, true.b = NULL, N = NULL, ...)
 }
 \arguments{
 \item{x}{perpendicular distance observations}
-
-\item{fit}{return from a call of \code{\link{fityx}}}
 
 \item{nclass}{number of histogram classes}
 
@@ -31,6 +29,8 @@ parameters used when simulating}
 \item{true.b}{true hazard rate function parameters used when simulating.}
 
 \item{N}{true number of animals in simulated distribution, used to calculate bias (see details).}
+
+\item{fit}{return from a call of \code{\link{fityx}}}
 
 \item{true.legend}{If true (and addTruth) plots legend for true functions in bottom left.}
 }
@@ -69,12 +69,8 @@ N=50 #true number of animals
 simDat=simXY(N=N,pi.x=pi.x,logphi=logphi,
 hr=hr,b=b,w=w,ystart=ystart)
 x=simDat$locs$x; y=simDat$locs$y
-est.yx=fityx(fityx(y,x,b,hr,ystart,pi.x,logphi,w)
-plotdat.yx=plotfit.x(x,est.yx,
-addTruth=TRUE,
-true.logphi=logphi,
-true.b=b,
-N=N)
+est.yx=fityx(y,x,b,hr,ystart,pi.x,logphi,w)
+plotdat.yx=plotfit.x(x,est.yx,addTruth=TRUE,true.logphi=logphi,true.b=b,N=N)
 }
 }
 \seealso{

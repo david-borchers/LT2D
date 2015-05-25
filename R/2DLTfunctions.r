@@ -1205,15 +1205,11 @@ simnhPP=function(x,b,ystart,hr,miss=TRUE,ylo=1e-5)
 #'hr=hr,b=b,w=w,ystart=ystart)
 #'x=simDat$locs$x; y=simDat$locs$y 
 #'est.yx=fityx(y,x,b,hr,ystart,pi.x,logphi,w)
-#'plotdat.yx=plotfit.x(x,est.yx,
-#'addTruth=TRUE,
-#'true.logphi=logphi,
-#'true.b=b,
-#'N=N)
+#'plotdat.yx=plotfit.x(x,est.yx,addTruth=TRUE,true.logphi=logphi,true.b=b,N=N)
 #'}
 #'@seealso \code{\link{fityx}}
 #'@export
-plotfit.x=function(x,fit,nclass=10,nint=100,
+plotfit.x=function(x,est,nclass=10,nint=100,
                    plot=TRUE,
                    addTruth=FALSE,
                    true.pi.x=NULL,
@@ -1223,8 +1219,8 @@ plotfit.x=function(x,fit,nclass=10,nint=100,
                    N=NULL,...)
 {
   Nhat.yx=bias=NULL
-  b=fit$b; hr=match.fun(fit$hr); ystart=fit$ystart; pi.x=match.fun(fit$pi.x)
-  logphi=fit$logphi; w=fit$w
+  b=est$b; hr=match.fun(est$hr); ystart=est$ystart; pi.x=match.fun(est$pi.x)
+  logphi=est$logphi; w=est$w
   x=x[x>=0 & x<=w]
   f.x=p.x.std=adbnTRUE=0
   # calculate stuff to plot:
@@ -1331,7 +1327,7 @@ plotfit.x=function(x,fit,nclass=10,nint=100,
 #'hr=hr,b=b,w=w,ystart=ystart)
 #'x=simDat$locs$x; y=simDat$locs$y 
 #'est.yx=fityx(y,x,b,hr,ystart,pi.x,logphi,w)
-#'plotfit.x(y,x,est.yx,nclass=10)
+#'plotfit.y(y,x,est.yx,nclass=10)
 #'}
 #'@seealso \code{\link{fityx}}
 #'@export
@@ -1347,6 +1343,7 @@ plotfit.y=function(y,x,est,nclass=10,breaks=NULL,plot=TRUE,lineonly=FALSE,nint=1
   for(i in 1:n) {
     fy.x[i,]=fyx(gridy,rep(x[i],res),b,hr,ystart,nint=nint)
   }
+  
   fy.=apply(fy.x,2,mean)
   if(plot){
     ymax=ystart

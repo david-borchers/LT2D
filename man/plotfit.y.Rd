@@ -55,8 +55,8 @@ N=50 #true number of animals
 simDat=simXY(N=N,pi.x=pi.x,logphi=logphi,
 hr=hr,b=b,w=w,ystart=ystart)
 x=simDat$locs$x; y=simDat$locs$y
-est.yx=fityx(fityx(y,x,b,hr,ystart,pi.x,logphi,w)
-plotfit.x(y,x,est.yx,nclass=10)
+est.yx=fityx(y,x,b,hr,ystart,pi.x,logphi,w)
+plotfit.y(y,x,est.yx,nclass=10)
 }
 }
 \seealso{
