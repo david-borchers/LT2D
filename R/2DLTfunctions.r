@@ -754,8 +754,8 @@ histline <-
 #' @param image Boolean \code{TRUE} image background on sightings scatter plot.
 #' @param xlab x-axis label for sightings scatter plot
 #' @param ylab y-axis label for sightings scatter plot
-#' @param ... other arguments to be passed into \code{\link{plotfit.yx}}
-#' @seealso \code{\link{simXY}} \code{\link{plotSim}} \code{\link{plotfit.yx}}
+#' @param ... other arguments to be passed into \code{\link{plotfit.y}}
+#' @seealso \code{\link{simXY}} \code{\link{plotSim}} \code{\link{plotfit.y}}
 #'@export
 #'@examples
 #'n=100;ymin=0.01;ymax=5;W=1
@@ -780,7 +780,7 @@ plotSim = function(simDat, nclass=10,xlab="", ylab="",image=FALSE,...){
   adbn=pi.x(gridx,logphi=logphi,w=w)
   
   est=list(b=b,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w)
-  ly=plotfit.yx(y,x,est=est,nclass=nclass,plot=FALSE,lineonly=FALSE,nint=50,...)
+  ly=plotfit.y(y,x,est=est,nclass=nclass,plot=FALSE,lineonly=FALSE,nint=50,...)
   yd=ly$fy.[floor(seq(1,length(ly$fy.),length.out=50))]
   if(image){
     image(x=gridx,y=gridy,
@@ -874,6 +874,7 @@ negloglik.yx2=function(y,x,ps,hr,b,ys,pi.x,logphi,w)
 #'\code{$ystart} = ystart max forward distance detection used.
 #'\code{$w} = perpendicular truncation distance used.
 #'\code{$b} = estimated hazard parameters (\code{$par[1:2]})
+#'\code($dat) = data frame with data ($x and $y)
 #'\code{$logphi} (\code{$par[3:4]})
 #'\code{AIC} AIC value
 #'And if \code{hessian=TRUE}
@@ -921,6 +922,7 @@ fityx=function(y,x,b,hr,ystart,pi.x,logphi,w,control=list(),hessian=FALSE,corrFl
       fit$logphi=NA
   }    # ***
   fit$AIC=2*fit$value+length(fit$par)
+  fit$dat=data.frame(x=x,y=y) # attach data to fitted object
   if(hessian){
     mNames=paste('b',1:length.b,sep='')
     if(!all(is.na(fit$logphi))) mNames=c(mNames,paste('logphi',1:length(fit$logphi),sep=''))
@@ -1291,10 +1293,52 @@ plotfit.x=function(x,fit,nclass=10,nint=100,
 }
 
 
-#est=list(b=b,hr=hr,ystart=ystart,pi.x=pi.x,logphi=logphi,w=w)
-plotfit.yx=function(y,x,est,nclass=10,plot=TRUE,lineonly=FALSE,nint=100,...)
+#'@title Plot fitted f(y) and forward distance distribution
+#'
+#'@description Plot f(y) and forward distance distribution 
+#'resulting from a call of \code{\link{fityx}}.
+#'
+#'@param y forward distance observations
+#'@param x perpendicular distance observations
+#'@param est return from a call of \code{\link{fityx}}
+#'@param nclass number of histogram classes
+#'@param breaks break points passed to hist (overrides nclass if not NULL)
+#'@param plot boolean, plot results
+#'@param lineonly if TRUE plots only f(y), else plots histogram of forward distances too
+#'@param nint number of intervals to use in calculating f(y)
+#'@param max.obs If TRUE, plots only up to maximum observed forward distance, else plots
+#'up to est$ystart (the forward distance beyond which detection is assumed impossible).
+#'@param ... other parameters passed to \code{hist} and \code{plot} (need to separate these two!)
+#'
+#'@details Plot f(y) and forward distance distribution resulting from a call of 
+#'\code{\link{fityx}}, optionall with overlaid histogram of foward distances. 
+#'Invisibly returns various f(y)'s, as detailed below.
+#'
+#'@return
+#'Invisibly returns a list with these elements
+#'\code{$gridx} = x values used in plotting
+#'\code{$fy.x} = Unscaled f(y|x) for all the xs observed
+#'\code{$fy.} = Unscaled mean of f(y|x) for all the xs observed
+#'\code{$scaled. fy.} = Mean of f(y|x), scaled to integrate to 1
+#'@examples
+#'\dontrun{
+#'ystart=4;w=1
+#'hr=h2; b=log(c(0.75,1))
+#'pi.x=pi.norm; logphi=c(0.5,log(0.2))
+#'N=50 #true number of animals
+#'#generate some observations
+#'simDat=simXY(N=N,pi.x=pi.x,logphi=logphi,
+#'hr=hr,b=b,w=w,ystart=ystart)
+#'x=simDat$locs$x; y=simDat$locs$y 
+#'est.yx=fityx(fityx(y,x,b,hr,ystart,pi.x,logphi,w)
+#'plotfit.x(y,x,est.yx,nclass=10)
+#'}
+#'@seealso \code{\link{fityx}}
+#'@export
+plotfit.y=function(y,x,est,nclass=10,breaks=NULL,plot=TRUE,lineonly=FALSE,nint=100,max.obs=TRUE,...)
 {
-  b=est$b; hr=est$hr; ystart=est$ystart; pi.x=est$pi.x; logphi=est$logphi; w=est$w
+  b=est$b; hr=match.fun(est$hr); ystart=est$ystart; pi.x=match.fun(est$pi.x)
+  logphi=est$logphi; w=est$w
   # calculate stuff to plot:
   n=length(y)
   res=100
@@ -1305,15 +1349,24 @@ plotfit.yx=function(y,x,est,nclass=10,plot=TRUE,lineonly=FALSE,nint=100,...)
   }
   fy.=apply(fy.x,2,mean)
   if(plot){
-    if(lineonly) {lines(gridy,fy.,...)}
+    ymax=ystart
+    if(max.obs) ymax=max(y)
+    if(is.null(breaks)) breaks=seq(1e-10,ymax,length=(nclass+1)) 
+    fy.area=sum((fy.[-1]+fy.[-length(fy.)])/2*diff(gridy))
+    scaled.fy.=fy./fy.area
+    if(lineonly) {lines(gridy,scaled.fy.,...)}
     else {
-      hst=hist(y,plot=FALSE)
-      #hist(y,freq=FALSE,xlab="forward distance (y)",nclass=nclass,ylim=c(0,max(hst$intensities,fy.)))
-      hist(y,freq=FALSE,xlab="forward distance (y)",nclass=nclass,ylim=c(0,max(hst$density,fy.)),...)
-      lines(gridy,fy.,...)
+      # hst=hist(y,plot=FALSE)
+      # hist(y,freq=FALSE,xlab="forward distance (y)",nclass=nclass,ylim=c(0,max(hst$intensities,fy.)))
+      hst=hist(y,breaks=breaks,plot=FALSE,...)
+      # cat("hist area=",hst$desity*diff(hst$breaks),"\n")
+      hmax=max(scaled.fy.,hst$density)
+      hist(y,freq=FALSE,xlab="forward distance (y)",breaks=breaks,ylim=c(0,hmax),...)
+      lines(gridy,scaled.fy.,...)
+      # cat("fy area=",sum((fy.[-1]+fy.[-length(fy.)])/2*diff(gridy)),"\n")
     }}
   
-  invisible(list(gridy=gridy,fy.x=fy.x,fy.=fy.))
+  invisible(list(gridy=gridy,fy.x=fy.x,fy.=fy.,scaled.fy.=scaled.fy.))
 }
 
 
