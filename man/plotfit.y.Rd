@@ -4,13 +4,14 @@
 \alias{plotfit.y}
 \title{Plot fitted f(y) and forward distance distribution}
 \usage{
-plotfit.y(y, x, est, nclass = 10, breaks = NULL, plot = TRUE,
-  lineonly = FALSE, nint = 100, max.obs = TRUE, ...)
+plotfit.y(y = NULL, x = NULL, est, nclass = 10, breaks = NULL,
+  plot = TRUE, lineonly = FALSE, nint = 100, max.obs = TRUE,
+  add = FALSE, ...)
 }
 \arguments{
-\item{y}{forward distance observations}
+\item{y}{forward distance observations (if NULL, uses est$dat$y)}
 
-\item{x}{perpendicular distance observations}
+\item{x}{perpendicular distance observations (if NULL, uses est$dat$x)}
 
 \item{est}{return from a call of \code{\link{fityx}}}
 
@@ -26,6 +27,9 @@ plotfit.y(y, x, est, nclass = 10, breaks = NULL, plot = TRUE,
 
 \item{max.obs}{If TRUE, plots only up to maximum observed forward distance, else plots
 up to est$ystart (the forward distance beyond which detection is assumed impossible).}
+
+\item{add}{if TRUE, adds line to existing plot, else creates new plot. Only applicable
+if lineonly==TRUE.}
 
 \item{...}{other parameters passed to \code{hist} and \code{plot} (need to separate these two!)}
 }

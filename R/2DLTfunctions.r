@@ -92,6 +92,36 @@ h21=function(y,x,b)
   return(dF(y,theta)*g0)
 }
 
+#'@title Inverse power hazard detection function (with g(0)<1)
+#' 
+#'@description  Inverse power hazard function, as per Borchers and Langrock (in press):
+#'Has form h(y,x)=theta[1]*[theta[2]/(sqrt{theta[2]^2+x^2+y^2})]^(theta[3]+1).
+#'
+#'@references Borchers, D.L and Langrock, R."Double-observer line transect surveys with Markov-
+#'modulated Poisson process models for animal availability" Biometrics (in press).
+#'@param y Forward distance
+#'@param x perpendicular distance
+#'@param b parameter vector, where \code{b[1]} is inv.logit(theta[1])  \code{b[2]} is 
+#'log(theta[2]) and \code{b[3]} is log(b[3]). 
+#'@return probability of detection given that an animal is availabe at location x,y
+#'#'@examples
+#'ip1(0.5,0.5,b=c(log(c(0.75,1)),qlogis(0.9)))
+#'yy=seq(0,0.03,length=100);xx=rep(0,100)
+#'hh=ip1(yy,xx,b=c(logit(0.5),log(c(0.025,4))))
+#'plot(yy,hh,type="l")
+#' @export
+ip1=function(y,x,b)
+{
+  if(length(b)!=3) {
+    cat(b,"\n")
+    stop("b must be vector of length 3.")
+  }
+  theta=exp(b[2:3])
+  dF=function(y,x,theta) (theta[1]/(theta[1]^2+y^2+x^2))^(theta[2]+1)
+  g0=inv.logit(b[1])
+  return(dF(y,x,theta)*g0)
+}
+
 #'@title Detection hazard function \code{h.exp2} prob(detect | available at x,y)
 #'
 #'@description  2-paramter Exponential power hazard model of Skaug & Schweder 1999. The gamma parameter is fixed at 2.
@@ -441,7 +471,7 @@ fyx=function(y,x,b,hr,ystart,nint=100)
 {
   if(length(y)!=length(x)) stop("Lengths of x and y must be the same.")
   n=length(x)
-  intval=rep(NA,n)
+  f=intval=rep(NA,n)
   hr=match.fun(hr)
 #  ylo=1e-10  # set to avoid evaluating hr at y=0, which gives Inf
   for(i in 1:n) {
@@ -868,20 +898,24 @@ negloglik.yx2=function(y,x,ps,hr,b,ys,pi.x,logphi,w)
 #'@param hessian return hessian.  See also \code{\link{optim}}.
 #'@param corrFlag=0.7 Absolute parameter correlation value above which a warning is issued.
 #'@param ... arguments to be passed into \code{\link{optim}}
-#'@return \code{\link{optim}} fit object and 
-#'\code{$hr} = hazard rate function used.
-#'\code{$pi.x} = perpendicular distance function used.
-#'\code{$ystart} = ystart max forward distance detection used.
-#'\code{$w} = perpendicular truncation distance used.
-#'\code{$b} = estimated hazard parameters (\code{$par[1:2]})
-#'\code($dat) = data frame with data ($x and $y)
-#'\code{$logphi} (\code{$par[3:4]})
-#'\code{AIC} AIC value
-#'And if \code{hessian=TRUE}
-#'\code{vcov} variance covariance matrix.  Will warn if there is a problem inverting the hessian.
-#'\code{CVpar} Coefficient of variation for each paramter estimate. 
-#'\code{error} Boolean, \code{TRUE} if convergence!=0 or problem inverting the hessian, or parameter correlation is exceeded.
-#'@details Must to ensure the hazard function has decayed to (very close to) zero by \code{ystart}.
+#'@return 
+#'\code{\link{optim}} fit object and \cr
+#'\code{$hr} = hazard rate function used.\cr
+#'\code{$pi.x} = perpendicular distance function used.\cr
+#'\code{$ystart} = ystart max forward distance detection used.\cr
+#'\code{$w} = perpendicular truncation distance used.\cr
+#'\code{$b} = estimated hazard parameters\cr
+#'\code(\code{$dat}) = data frame with data (\code{$x} and \code{$y})\cr
+#'\code{$logphi} \cr
+#'\code{AIC} AIC value\cr
+#'And if \code{hessian=TRUE}:\cr
+#'\code{vcov} variance covariance matrix.  Will warn if there is a problem inverting 
+#'the hessian.\cr
+#'\code{CVpar} Coefficient of variation for each paramter estimate. \cr
+#'\code{error} Boolean, \code{TRUE} if convergence!=0 or problem inverting the hessian, 
+#'or parameter correlation is exceeded.\cr
+#'@details Must to ensure the hazard function has decayed to (very close to) zero by 
+#'\code{ystart}.
 #'
 #'@examples
 #'\dontrun{
@@ -1294,8 +1328,8 @@ plotfit.x=function(x,est,nclass=10,nint=100,
 #'@description Plot f(y) and forward distance distribution 
 #'resulting from a call of \code{\link{fityx}}.
 #'
-#'@param y forward distance observations
-#'@param x perpendicular distance observations
+#'@param y forward distance observations (if NULL, uses est$dat$y)
+#'@param x perpendicular distance observations (if NULL, uses est$dat$x)
 #'@param est return from a call of \code{\link{fityx}}
 #'@param nclass number of histogram classes
 #'@param breaks break points passed to hist (overrides nclass if not NULL)
@@ -1304,6 +1338,8 @@ plotfit.x=function(x,est,nclass=10,nint=100,
 #'@param nint number of intervals to use in calculating f(y)
 #'@param max.obs If TRUE, plots only up to maximum observed forward distance, else plots
 #'up to est$ystart (the forward distance beyond which detection is assumed impossible).
+#'@param add if TRUE, adds line to existing plot, else creates new plot. Only applicable 
+#'if lineonly==TRUE.
 #'@param ... other parameters passed to \code{hist} and \code{plot} (need to separate these two!)
 #'
 #'@details Plot f(y) and forward distance distribution resulting from a call of 
@@ -1331,10 +1367,12 @@ plotfit.x=function(x,est,nclass=10,nint=100,
 #'}
 #'@seealso \code{\link{fityx}}
 #'@export
-plotfit.y=function(y,x,est,nclass=10,breaks=NULL,plot=TRUE,lineonly=FALSE,nint=100,max.obs=TRUE,...)
+plotfit.y=function(y=NULL,x=NULL,est,nclass=10,breaks=NULL,plot=TRUE,lineonly=FALSE,nint=100,max.obs=TRUE,add=FALSE,...)
 {
   b=est$b; hr=match.fun(est$hr); ystart=est$ystart; pi.x=match.fun(est$pi.x)
   logphi=est$logphi; w=est$w
+  if(is.null(y)) y=est$dat$y
+  if(is.null(x)) x=est$dat$x
   # calculate stuff to plot:
   n=length(y)
   res=100
@@ -1351,7 +1389,11 @@ plotfit.y=function(y,x,est,nclass=10,breaks=NULL,plot=TRUE,lineonly=FALSE,nint=1
     if(is.null(breaks)) breaks=seq(1e-10,ymax,length=(nclass+1)) 
     fy.area=sum((fy.[-1]+fy.[-length(fy.)])/2*diff(gridy))
     scaled.fy.=fy./fy.area
-    if(lineonly) {lines(gridy,scaled.fy.,...)}
+    if(lineonly) {
+      if(add) lines(gridy,scaled.fy.,...)
+      else plot(gridy,scaled.fy.,ylim=c(0,max(scaled.fy.)),type="l",
+                xlab="forward distance (y)",ylab="f(y)",...)
+    }
     else {
       # hst=hist(y,plot=FALSE)
       # hist(y,freq=FALSE,xlab="forward distance (y)",nclass=nclass,ylim=c(0,max(hst$intensities,fy.)))
@@ -1704,8 +1746,16 @@ poisint=function(y,x,ymin,ymax,hfun,b,pi.x,logphi,W,lscale=1){
 #' Sy(0,0.1,ymax,b,h2)
 #' }
 #' @export
-Sy=function(x,y,ymax,b,hfun) 
-  exp(-integrate(match.fun(hfun),y,ymax,x=x,b=b)$value)
+Sy=function(x,y,ymax,b,hfun) {
+  n=length(x)
+  if(length(y)!=n) stop("Lengths of x and y must be the same.")
+  pS=rep(NA,n)
+  for(i in 1:n){
+    pS[i]=exp(-integrate(match.fun(hfun),y[i],ymax,x=x[i],b=b)$value)
+  }
+  return(pS)
+}
+  
 
 #' AIC-based model selection for models fitted using \link{fitxy}
 #'

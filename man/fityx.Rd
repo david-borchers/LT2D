@@ -33,19 +33,21 @@ fityx(y, x, b, hr, ystart, pi.x, logphi, w, control = list(),
 \item{corrFlag=0.7}{Absolute parameter correlation value above which a warning is issued.}
 }
 \value{
-\code{\link{optim}} fit object and
-\code{$hr} = hazard rate function used.
-\code{$pi.x} = perpendicular distance function used.
-\code{$ystart} = ystart max forward distance detection used.
-\code{$w} = perpendicular truncation distance used.
-\code{$b} = estimated hazard parameters (\code{$par[1:2]})
-\code($dat) = data frame with data ($x and $y)
-\code{$logphi} (\code{$par[3:4]})
-\code{AIC} AIC value
-And if \code{hessian=TRUE}
-\code{vcov} variance covariance matrix.  Will warn if there is a problem inverting the hessian.
-\code{CVpar} Coefficient of variation for each paramter estimate.
-\code{error} Boolean, \code{TRUE} if convergence!=0 or problem inverting the hessian, or parameter correlation is exceeded.
+\code{\link{optim}} fit object and \cr
+\code{$hr} = hazard rate function used.\cr
+\code{$pi.x} = perpendicular distance function used.\cr
+\code{$ystart} = ystart max forward distance detection used.\cr
+\code{$w} = perpendicular truncation distance used.\cr
+\code{$b} = estimated hazard parameters\cr
+\code(\code{$dat}) = data frame with data (\code{$x} and \code{$y})\cr
+\code{$logphi} \cr
+\code{AIC} AIC value\cr
+And if \code{hessian=TRUE}:\cr
+\code{vcov} variance covariance matrix.  Will warn if there is a problem inverting
+the hessian.\cr
+\code{CVpar} Coefficient of variation for each paramter estimate. \cr
+\code{error} Boolean, \code{TRUE} if convergence!=0 or problem inverting the hessian,
+or parameter correlation is exceeded.\cr
 }
 \description{
 Uses \code{\link{optim}} to obtain a MLE for the hazard function and animal
@@ -53,7 +55,8 @@ perpendicular distance distribution.  Functional forms for the hazard and perpen
 distribution must be specified.
 }
 \details{
-Must to ensure the hazard function has decayed to (very close to) zero by \code{ystart}.
+Must to ensure the hazard function has decayed to (very close to) zero by
+\code{ystart}.
 }
 \examples{
 \dontrun{
