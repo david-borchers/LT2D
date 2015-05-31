@@ -67,7 +67,7 @@ h2=function(y,x,b)
 #'@references Hayes, R. J., and S. T. Buckland. "Radial-distance models for the line-transect method." Biometrics (1983): 29-42.
 #'@param y Forward distance
 #'@param x perpendicular distance
-#'@param b parameter vector, where \code{b[2]} is log(theta) and \code{b[3]} is logit(b[3]) detectability at the observer i.e. \eqn{g(0)=c}
+#'@param b parameter vector, where \code{b[2]} is log(theta) and \code{b[3]} is qlogis(b[3]) detectability at the observer i.e. \eqn{g(0)=c}
 #'@return probability of detection given that an animal is availabe at location x,y
 #'#'@examples
 #'h21(0.5,0.5,b=c(log(c(0.75,1)),qlogis(0.9)))
@@ -101,13 +101,14 @@ h21=function(y,x,b)
 #'modulated Poisson process models for animal availability" Biometrics (in press).
 #'@param y Forward distance
 #'@param x perpendicular distance
-#'@param b parameter vector, where \code{b[1]} is inv.logit(theta[1])  \code{b[2]} is 
+#'@param b parameter vector, where \code{b[1]} is plogis(theta[1])  \code{b[2]} is 
 #'log(theta[2]) and \code{b[3]} is log(b[3]). 
 #'@return probability of detection given that an animal is availabe at location x,y
 #'#'@examples
-#'ip1(0.5,0.5,b=c(log(c(0.75,1)),qlogis(0.9)))
+#'b=c(-23.725809, -3.136638,2.122910)
+#'ip1(0.5,0.5,b=b)
 #'yy=seq(0,0.03,length=100);xx=rep(0,100)
-#'hh=ip1(yy,xx,b=c(logit(0.5),log(c(0.025,4))))
+#'hh=ip1(yy,xx,b=b)
 #'plot(yy,hh,type="l")
 #' @export
 ip1=function(y,x,b)
@@ -118,9 +119,44 @@ ip1=function(y,x,b)
   }
   theta=exp(b[2:3])
   dF=function(y,x,theta) (theta[1]/(theta[1]^2+y^2+x^2))^(theta[2]+1)
-  g0=inv.logit(b[1])
+  g0=plogis(b[1])
   return(dF(y,x,theta)*g0)
 }
+
+
+
+#'@title Exponential power hazard detection function (with g(0)<1)
+#' 
+#'@description  Inverse power hazard function, as per Borchers and Langrock (in press):
+#'Has form h(y,x)=theta[1]*exp(-(x^theta[3]+y^theta[3])/(theta[2]^theta[3])).
+#'
+#'@references Borchers, D.L and Langrock, R."Double-observer line transect surveys with Markov-
+#'modulated Poisson process models for animal availability" Biometrics (in press).
+#'@param y Forward distance
+#'@param x perpendicular distance
+#'@param b parameter vector, where \code{b[1]} is plogis(theta[1])  \code{b[2]} is 
+#'log(theta[2]) and \code{b[3]} is log(b[3]). 
+#'@return probability of detection given that an animal is availabe at location x,y
+#'#'@examples
+#'b=c(1, -4, 1)
+#'ep1(0.5,0.5,b=b)
+#'yy=seq(0,0.03,length=100);xx=rep(0,100)
+#'hh=ep1(yy,xx,b=b)
+#'plot(yy,hh,type="l")
+#' @export
+ep1=function(y,x,b)
+{
+  if(length(b)!=3) {
+    cat(b,"\n")
+    stop("b must be vector of length 3.")
+  }
+  theta=exp(b[2:3])
+  dF=function(y,x,theta) exp(-(x^theta[2]+y^theta[2])/(theta[1]^theta[2]))
+  g0=plogis(b[1])
+  return(dF(y,x,theta)*g0)
+}
+
+
 
 #'@title Detection hazard function \code{h.exp2} prob(detect | available at x,y)
 #'
@@ -905,7 +941,7 @@ negloglik.yx2=function(y,x,ps,hr,b,ys,pi.x,logphi,w)
 #'\code{$ystart} = ystart max forward distance detection used.\cr
 #'\code{$w} = perpendicular truncation distance used.\cr
 #'\code{$b} = estimated hazard parameters\cr
-#'\code(\code{$dat}) = data frame with data (\code{$x} and \code{$y})\cr
+#'\code{$dat} = data frame with data (\code{$x} and \code{$y})\cr
 #'\code{$logphi} \cr
 #'\code{AIC} AIC value\cr
 #'And if \code{hessian=TRUE}:\cr
@@ -1920,7 +1956,7 @@ phatInterval=function(fit,type='LOGNORM',
 
 #'Calculate \eqn{\hat p} and optionally \eqn{\hat N} for a list of models
 #'
-#'Calculate \eqn{\hat p} along with variance, \eqn{Var[\hat p]}, using the delta method.  Optionally \eqn(\hat N) can also be calculated.
+#'Calculate \eqn{\hat p} along with variance, \eqn{Var[\hat p]}, using the delta method.  Optionally \eqn{\hat N} can also be calculated.
 #'@param modList list object of models created by \link{fityx}.
 #'@param n=NULL number of animals detected. If n!=NULL \eqn{\hat N} is calculated
 #'@param tab boolean - return a data frame suitable for generating a table for report or paper.

@@ -39,7 +39,7 @@ fityx(y, x, b, hr, ystart, pi.x, logphi, w, control = list(),
 \code{$ystart} = ystart max forward distance detection used.\cr
 \code{$w} = perpendicular truncation distance used.\cr
 \code{$b} = estimated hazard parameters\cr
-\code(\code{$dat}) = data frame with data (\code{$x} and \code{$y})\cr
+\code{$dat} = data frame with data (\code{$x} and \code{$y})\cr
 \code{$logphi} \cr
 \code{AIC} AIC value\cr
 And if \code{hessian=TRUE}:\cr
