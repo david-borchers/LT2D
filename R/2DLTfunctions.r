@@ -1889,7 +1889,7 @@ phatInterval=function(fit,type='LOGNORM',
   pars=fit$par; 
   hr=fit$hr; b=fit$b;
   ystart=fit$ystart; w=fit$w
-  pi.x=fit$pi.x; logphi=fit$logphi
+  pi.x=match.fun(fit$pi.x); logphi=fit$logphi
   #estimated p
   p.hat=phat(fit=fit)
   #variance-covariance matrix
