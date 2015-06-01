@@ -1057,7 +1057,7 @@ fityx=function(y,x,b,hr,ystart,pi.x,logphi,w,control=list(),hessian=FALSE,corrFl
   }else{
       fit$logphi=NA
   }    # ***
-  fit$AIC=2*fit$value+length(fit$par)
+  fit$AIC=2*fit$value+2*length(fit$par)
   fit$dat=data.frame(x=x,y=y) # attach data to fitted object
   if(hessian){
     mNames=paste('b',1:length.b,sep='')
