@@ -92,7 +92,7 @@ h21=function(y,x,b)
   return(dF(y,theta)*g0)
 }
 
-#'@title Inverse power hazard detection function (with g(0)<1)
+#'@title Three-parameter inverse power hazard detection function
 #' 
 #'@description  Inverse power hazard function, as per Borchers and Langrock (in press):
 #'Has form h(y,x)=theta[1]*[theta[2]/(sqrt{theta[2]^2+x^2+y^2})]^(theta[3]+1).
@@ -118,14 +118,14 @@ ip1=function(y,x,b)
     stop("b must be vector of length 3.")
   }
   theta=exp(b[2:3])
-  dF=function(y,x,theta) (theta[1]/(theta[1]^2+y^2+x^2))^(theta[2]+1)
+  dF=function(y,x,theta) (theta[1]/(theta[1]^2+x^2+y^2))^(theta[2]+1)
   g0=plogis(b[1])
   return(dF(y,x,theta)*g0)
 }
 
 
 
-#'@title Exponential power hazard detection function (with g(0)<1)
+#'@title Three-parameter exponential power hazard detection function 
 #' 
 #'@description  Inverse power hazard function, as per Borchers and Langrock (in press):
 #'Has form h(y,x)=theta[1]*exp(-(x^theta[3]+y^theta[3])/(theta[2]^theta[3])).
@@ -156,6 +156,72 @@ ep1=function(y,x,b)
   return(dF(y,x,theta)*g0)
 }
 
+
+#'@title Four-parameter inverse power hazard detection function
+#' 
+#'@description  Inverse power hazard function, as per Borchers and Langrock (in press):
+#'Has form h(y,x)=theta[1]*(1/(1+(x/theta[2])^2+(y/theta[4])^2))^(theta[3]+1).
+#'
+#'@references Borchers, D.L and Langrock, R."Double-observer line transect surveys with Markov-
+#'modulated Poisson process models for animal availability" Biometrics (in press).
+#'@param y Forward distance
+#'@param x perpendicular distance
+#'@param b parameter vector, where \code{b[1]} is plogis(theta[1]) \code{b[2]} is
+#'log(theta[2]), where \code{theta[2]} is the scale parameter for x, \code{b[3]} is log(theta[3])
+#'and \code{b[2]} is log(theta[4]), where \code{theta[4]} is the scale parameter for y. 
+#'@return probability of detection given that an animal is availabe at location x,y
+#'#'@examples
+#'b=c(-23.725809,-3.136638,2.122910,-3.136638)
+#'ip2(0.5,0.5,b=b)
+#'yy=seq(0,0.03,length=100);xx=rep(0,100)
+#'hh=ip2(yy,xx,b=b)
+#'plot(yy,hh,type="l")
+#' @export
+ip2=function(y,x,b)
+{
+  if(length(b)!=4) {
+    cat(b,"\n")
+    stop("b must be vector of length 3.")
+  }
+  theta=exp(b[2:4])
+  dF=function(y,x,theta) (1/(1+(x/theta[1])^2+(y/theta[3])^2))^(theta[2]+1)
+  g0=plogis(b[1])
+  return(dF(y,x,theta)*g0)
+}
+
+
+
+#'@title Four-parameter exponential power hazard detection function
+#' 
+#'@description  Inverse power hazard function, as per Borchers and Langrock (in press):
+#'Has form h(y,x)=theta[1]*exp(-(x^theta[3]+y^theta[3])/(theta[2]^theta[3])).
+#'
+#'@references Borchers, D.L and Langrock, R."Double-observer line transect surveys with Markov-
+#'modulated Poisson process models for animal availability" Biometrics (in press).
+#'@param y Forward distance
+#'@param x perpendicular distance
+#'@param b parameter vector, where \code{b[1]} is plogis(theta[1]) \code{b[2]} is
+#'log(theta[2]), where \code{theta[2]} is the scale parameter for x, \code{b[3]} is log(theta[3])
+#'and \code{b[2]} is log(theta[4]), where \code{theta[4]} is the scale parameter for y. 
+#'@return probability of detection given that an animal is availabe at location x,y
+#'#'@examples
+#'b=c(1, -4, 1)
+#'ep1(0.5,0.5,b=b)
+#'yy=seq(0,0.03,length=100);xx=rep(0,100)
+#'hh=ep1(yy,xx,b=b)
+#'plot(yy,hh,type="l")
+#' @export
+ep2=function(y,x,b)
+{
+  if(length(b)!=4) {
+    cat(b,"\n")
+    stop("b must be vector of length 3.")
+  }
+  theta=exp(b[2:4])
+  dF=function(y,x,theta) exp(-((x/theta[1])^theta[2]+(y/theta[3])^theta[2]))
+  g0=plogis(b[1])
+  return(dF(y,x,theta)*g0)
+}
 
 
 #'@title Detection hazard function \code{h.exp2} prob(detect | available at x,y)
