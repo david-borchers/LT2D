@@ -31,7 +31,7 @@ and optionally if n!=NULL
 \code{NhatUpper} upper boudn of \eqn{\hat N}
 }
 \description{
-Calculate \eqn{\hat p} along with variance, \eqn{Var[\hat p]}, using the delta method.  Optionally \eqn(\hat N) can also be calculated.
+Calculate \eqn{\hat p} along with variance, \eqn{Var[\hat p]}, using the delta method.  Optionally \eqn{\hat N} can also be calculated.
 }
 \seealso{
 \link{fityx} \link{phatInterval}

@@ -11,7 +11,7 @@ h21(y, x, b)
 
 \item{x}{perpendicular distance}
 
-\item{b}{parameter vector, where \code{b[2]} is log(theta) and \code{b[3]} is logit(b[3]) detectability at the observer i.e. \eqn{g(0)=c}}
+\item{b}{parameter vector, where \code{b[2]} is log(theta) and \code{b[3]} is qlogis(b[3]) detectability at the observer i.e. \eqn{g(0)=c}}
 }
 \value{
 probability of detection given that an animal is availabe at location x,y
