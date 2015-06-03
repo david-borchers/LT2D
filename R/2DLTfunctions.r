@@ -1419,12 +1419,13 @@ plotfit.y=function(y=NULL,x=NULL,est,nclass=10,breaks=NULL,plot=TRUE,lineonly=FA
   }
   
   fy.=apply(fy.x,2,mean)
+  fy.area=sum((fy.[-1]+fy.[-length(fy.)])/2*diff(gridy))
+  scaled.fy.=fy./fy.area
   if(plot){
     ymax=ystart
     if(max.obs) ymax=max(y)
     if(is.null(breaks)) breaks=seq(1e-10,ymax,length=(nclass+1)) 
-    fy.area=sum((fy.[-1]+fy.[-length(fy.)])/2*diff(gridy))
-    scaled.fy.=fy./fy.area
+  
     if(lineonly) {
       if(add) lines(gridy,scaled.fy.,...)
       else plot(gridy,scaled.fy.,ylim=c(0,max(scaled.fy.)),type="l",
@@ -2009,5 +2010,25 @@ phatModels=function(modList,n=NULL,tab=FALSE,digits=2,...)
       }
       return(list(res=phatTab,tab=tab))
     }
+}
+
+#' Plot the 2D fit of a model
+#' 
+#' Plot the 2D fit of a model resulting from a call of \link{fityx}
+#' @param fit object resulting from a call of \link{fityx}
+#' @param ... other parameters passed into \link{plotSim}
+#' @details This function is a wrapper for \link{plotSim}.
+#' @seealso \link{plotSim} \link{fityx}
+plotFit=function(fit,...){
+  obj=list(locs=data.frame(x=fit$dat$x,y=fit$dat$y),
+           settings=list(pi.x=match.fun(fit$pi.x),
+                         logphi=fit$logphi,
+                         hr=fit$hr,
+                         b=fit$b,
+                         w=fit$w,
+                         ystart=fit$ystart))
+  plotSim(simDat=obj, nclass=10,xlab="perpendicular distance (x)", 
+          ylab="forward distance (y)",image=TRUE,...)      
+  
 }
 
