@@ -15,6 +15,7 @@
 #'@export
 h1=function(y,x,b)
 {
+  ## Test comment.
   if(length(b)!=2) {
     cat(b,"\n")
     stop("b must be vector of length 2.")
