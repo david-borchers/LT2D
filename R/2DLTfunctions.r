@@ -1598,7 +1598,7 @@ coveragep=function(fit,true.hr,true.b,true.pi.x,true.logphi,type='LOGNORM',
   if(!'hessian' %in% names(fit))
     stop('fit ARG must include a hessian matrix')
   pars=fit$par; 
-  hr=fit$hr; b=fit$b;
+  hr=match.fun(fit$hr); b=fit$b;
   ystart=fit$ystart; w=fit$w
   pi.x=fit$pi.x; logphi=fit$logphi
   #true p
@@ -1649,7 +1649,8 @@ coveragep=function(fit,true.hr,true.b,true.pi.x,true.logphi,type='LOGNORM',
 phat=function(fit=NULL,w=NULL,hr=NULL,b=NULL,ystart=NULL,pi.x=NULL,logphi=NULL)
 {
   if(!is.null(fit)){
-    f=fit$p.pi.x; upper=fit$w; b=fit$b; hr=match.fun(fit$hr)
+    #f=fit$p.pi.x; 
+    upper=fit$w; b=fit$b; hr=match.fun(fit$hr)
     ystart=fit$ystart;pi.x=match.fun(fit$pi.x);logphi=fit$logphi;w=fit$w
   }
   int=integrate(f=p.pi.x,lower=0,upper=w,b=b,hr=hr,
@@ -2029,7 +2030,7 @@ phatInterval=function(fit,type='LOGNORM',
   if(!'hessian' %in% names(fit))
     stop('fit ARG must include a hessian matrix')
   pars=fit$par; 
-  hr=fit$hr; b=fit$b;
+  hr=match.fun(fit$hr); b=fit$b;
   ystart=fit$ystart; w=fit$w
   pi.x=match.fun(fit$pi.x); logphi=fit$logphi
   #estimated p
