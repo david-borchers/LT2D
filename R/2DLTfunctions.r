@@ -1892,8 +1892,20 @@ Sy=function(x,y,ymax,b,hfun) {
   n=length(x)
   if(length(y)!=n) stop("Lengths of x and y must be the same.")
   pS=rep(NA,n)
-  for(i in 1:n){
-    pS[i]=exp(-integrate(match.fun(hfun),y[i],ymax,x=x[i],b=b)$value)
+  if(is.character(hfun)) hchar=hfun
+  else hchar=as.character(substitute(hfun))
+  if(hchar=="h1") { # Hayes & Buckland hazard rate model, so can do analytically
+    for(i in 1:n){
+      if(y[i]==0){
+        pS[i]=1-HBhr(x[i],h1.to.HB(b))
+      } else {
+        pS[i]=exp(-integrate(match.fun(hfun),y[i],ymax,x=x[i],b=b)$value)
+      }
+    }
+  } else { # Not Hayes & Buckland hazard rate model, so can't do analytically
+    for(i in 1:n){
+      pS[i]=exp(-integrate(match.fun(hfun),y[i],ymax,x=x[i],b=b)$value)
+    }
   }
   return(pS)
 }
