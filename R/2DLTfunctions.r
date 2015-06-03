@@ -1379,7 +1379,7 @@ simnhPP=function(x,b,ystart,hr,miss=TRUE,ylo=1e-5)
 #'@seealso \code{\link{fityx}}
 #'@export
 plotfit.x=function(x,est,nclass=10,nint=100,
-                   plot=TRUE,
+                   plot=TRUE,dotitle="FALSE",
                    addTruth=FALSE,
                    true.pi.x=NULL,
                    true.logphi=NULL,
@@ -1418,7 +1418,8 @@ plotfit.x=function(x,est,nclass=10,nint=100,
     breaks=seq(0,w,length=(nclass+1))
     hx=hist(x,breaks=breaks,plot=FALSE) # get hist bar heights
     ymax=max(f.xfit,p.xfit.std,adbn,f.x,p.x.std,adbnTRUE,hx$density)
-    main="Fitted curves"
+    main=""
+    if(dotitle) main="Fitted curves"
     if(addTruth) main="Fitted curves (grey=true)"
     hx=hist(x,breaks=breaks,freq=FALSE,ylim=c(0,ymax),
             main=main,xlab="perpendicular distance (x)",ylab="pdf")
@@ -1428,8 +1429,10 @@ plotfit.x=function(x,est,nclass=10,nint=100,
     # overlay animal pdf:
     lines(gridx,adbn,lty=3,col="black",lwd=2)
     
-    legend("topright",title="Estimated",legend=c("f(x)","p(x)","pi(x)"),
+    if(addTruth) legend("topright",title="Estimated",legend=c("f(x)","p(x)","pi(x)"),
            col=c("black","black","black"),lwd=c(2,2,2),lty=c(1,2,3))
+    else legend("topright",legend=c("f(x)","p(x)","pi(x)"),
+                col=c("black","black","black"),lwd=c(2,2,2),lty=c(1,2,3))
     if(addTruth){
       lines(gridx,f.x,col="grey",lwd=2)
       p.x=px(gridx,b,hr,ystart,nint=nint)
@@ -1502,7 +1505,8 @@ plotfit.x=function(x,est,nclass=10,nint=100,
 #'}
 #'@seealso \code{\link{fityx}}
 #'@export
-plotfit.y=function(y=NULL,x=NULL,est,nclass=10,breaks=NULL,plot=TRUE,lineonly=FALSE,nint=100,max.obs=TRUE,add=FALSE,...)
+plotfit.y=function(y=NULL,x=NULL,est,nclass=10,breaks=NULL,plot=TRUE,dotitle=FALSE,
+                   lineonly=FALSE,nint=100,max.obs=TRUE,add=FALSE,...)
 {
   b=est$b; hr=match.fun(est$hr); ystart=est$ystart; pi.x=match.fun(est$pi.x)
   logphi=est$logphi; w=est$w
@@ -1537,7 +1541,8 @@ plotfit.y=function(y=NULL,x=NULL,est,nclass=10,breaks=NULL,plot=TRUE,lineonly=FA
       hst=hist(y,breaks=breaks,plot=FALSE,...)
       # cat("hist area=",hst$desity*diff(hst$breaks),"\n")
       hmax=max(scaled.fy.,hst$density)
-      hist(y,freq=FALSE,xlab="forward distance (y)",breaks=breaks,ylim=c(0,hmax),...)
+      if(dotitle) hist(y,freq=FALSE,xlab="forward distance (y)",breaks=breaks,ylim=c(0,hmax),...)
+      else hist(y,freq=FALSE,xlab="forward distance (y)",breaks=breaks,ylim=c(0,hmax),main="",...)
       lines(gridy,scaled.fy.,...)
       # cat("fy area=",sum((fy.[-1]+fy.[-length(fy.)])/2*diff(gridy)),"\n")
     }}
