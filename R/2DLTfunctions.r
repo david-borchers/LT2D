@@ -1,31 +1,94 @@
 #'@title Detection hazard function \code{h1} prob(detect | available at x,y)
 #'
-#'@description  This hazard function has the form k(r,y)=a*r^(-b) from Hayes and Buckland (1983) p36.
+#'@description  This hazard function has the form k(r,y)=a*r^(-b) from Hayes and Buckland (1983)
+#' p36. Note: This function uses x for perp. dist., they use y.
 #'
 #'@references Hayes, R. J., and S. T. Buckland. "Radial-distance models for the line-transect method." Biometrics (1983): 29-42.
 #'@param y Forward distance
 #'@param x perpendicular distance
-#'@param b parameter vector, where \code{b[2]} is log(theta)
+#'@param b parameter vector, where \code{b[2]} is log(theta), and the function returns
+#'theta[1]*(y^2+x^2)^(-theta[2]/2).
 #'@return probability of detection given that an animal is availabe at location x,y
 #'@examples
 #'h1(0.5,0.5,b=log(c(0.001,1)))
-#'@seealso \code{\link{h2}}
+#'@seealso \code{\link{h2}}, \code{\link{ghy}}, \code{\link{ghy2}}
 #'@export
 h1=function(y,x,b)
-  #-------------------------------------------------------------------------------
-# Detection hazard function prob(detect | available at x,y),
-# Corresponding to Hayes and Buckland (1983) k(r,y)=a*r^(-b) on p36.
-# Note: I use x for perp. dist., they use y.
-# Inputs:
-#  b: log(theta), where theta is vector of hazard rate parameters
-#-------------------------------------------------------------------------------
 {
+  ## Test comment.
   if(length(b)!=2) {
     cat(b,"\n")
     stop("b must be vector of length 2.")
   }
   theta=exp(b)
   return(theta[1]*(y^2+x^2)^(-theta[2]/2))
+}
+
+#'@title Detection hazard function \code{ghy} prob(detect | available at x,y)
+#'
+#'@description  This hazard function is a generalization of the form k(r,y)=a*r^(-b) from 
+#'Hayes and Buckland (1983) p36, the generalization being that a parameter to be estimated
+#'is added to y. When this parameter is zero you get the form of Hayes and Buckland (1983) p36.
+#'Note: This function uses x for perp. dist., they use y.
+#'
+#'@references Hayes, R. J., and S. T. Buckland. "Radial-distance models for the line-transect method." Biometrics (1983): 29-42.
+#'@param y Forward distance
+#'@param x perpendicular distance
+#'@param b parameter vector, where \code{b[2]} is log(theta); theta[1] is as per \link{\code{h1}} 
+#'parameter theta[1]; theta[2] is as per \link{\code{h1}} theta[2]; theta[3] is parameter that
+#'is added to y to shift forward distance origin and allow p(0)<1.
+#'@return probability of detection given that an animal is availabe at location x,y
+#'@examples
+#'h1(0.5,0.5,b=log(c(0.001,1)))
+#'ghy(0.5,0.5,b=log(c(0.001,1,0.0)))
+#'ghy(0.5,0.5,b=log(c(0.001,1,0.01)))
+#'@seealso \code{\link{h2}}, \code{\link{ghy2}}
+#'@export
+ghy=function(y,x,b)
+{
+  if(length(b)!=3) {
+    cat(b,"\n")
+    stop("b must be vector of length 3.")
+  }
+  theta=exp(b)
+  theta1=theta[1]^(1/theta[2])
+  return(((x/theta1)^2+((y+theta[3])/theta1)^2)^(-theta[2]/2))
+}
+
+#'@title Detection hazard function \code{ghy2} prob(detect | available at x,y)
+#'
+#'@description  This hazard function is a generalization of the form k(r,y)=a*r^(-b) from 
+#'Hayes and Buckland (1983) p36, the generalization being that (1) a parameter to be estimated
+#'is added to y, and (2) x and y have separate scale parameters. It is a generalization of
+#'\link{\code{ghy}} to allow x and y to have separate scale parameters. 
+#'Note: This function uses x for perp. dist., they use y.
+#'
+#'@references Hayes, R. J., and S. T. Buckland. "Radial-distance models for the line-transect method." Biometrics (1983): 29-42.
+#'@param y Forward distance
+#'@param x perpendicular distance
+#'@param b parameter vector, where \code{b[2]} is log(theta); theta[1] is as per \link{\code{h1}} 
+#'parameter theta[1]; theta[2] is as per \link{\code{h1}} theta[2]; theta[3] is parameter that
+#'is added to y to shift forward distance origin and allow p(0)<1; theta[4] is the equivalent of 
+#'theta[1], but specific to y, whereas theta[1] is specific to x in this function.
+#'@return probability of detection given that an animal is availabe at location x,y
+#'@examples
+#'h1(0.5,0.5,b=log(c(0.001,1)))
+#'ghy(0.5,0.5,b=log(c(0.001,1,0.0)))
+#'ghy(0.5,0.5,b=log(c(0.001,1,0.01)))
+#'ghy2(0.5,0.5,b=log(c(0.001,1,0.01,0.001)))
+#'ghy2(0.5,0.5,b=log(c(0.001,1,0.01,0.005)))
+#'@seealso \code{\link{h2}}, \code{\link{ghy2}}
+#'@export
+ghy2=function(y,x,b)
+{
+  if(length(b)!=4) {
+    cat(b,"\n")
+    stop("b must be vector of length 4.")
+  }
+  theta=exp(b)
+  thetax=theta[1]^(1/theta[2])
+  thetay=theta[4]^(1/theta[2])
+  return(((x/thetax)^2+((y+theta[3])/thetay)^2)^(-theta[2]/2))
 }
 
 #'@title Detection hazard function \code{h2} prob(detect | available at x,y)
@@ -92,7 +155,7 @@ h21=function(y,x,b)
   return(dF(y,theta)*g0)
 }
 
-#'@title Inverse power hazard detection function (with g(0)<1)
+#'@title Three-parameter inverse power hazard detection function
 #' 
 #'@description  Inverse power hazard function, as per Borchers and Langrock (in press):
 #'Has form h(y,x)=theta[1]*[theta[2]/(sqrt{theta[2]^2+x^2+y^2})]^(theta[3]+1).
@@ -117,15 +180,18 @@ ip1=function(y,x,b)
     cat(b,"\n")
     stop("b must be vector of length 3.")
   }
-  theta=exp(b[2:3])
-  dF=function(y,x,theta) (theta[1]/(theta[1]^2+y^2+x^2))^(theta[2]+1)
-  g0=plogis(b[1])
-  return(dF(y,x,theta)*g0)
+#  theta=exp(b[2:3])
+#  dF=function(y,x,theta) (theta[1]/(theta[1]^2+x^2+y^2))^(theta[2]+1)
+#  g0=plogis(b[1])
+  theta=exp(b)
+  p=theta[1]*(1/sqrt(1+(x/theta[2])^2+(y/theta[2])^2))^(theta[3]+1)
+#  p=theta[1]*(theta[2]/sqrt(theta[2]^2+x^2+y^2))^(theta[3]+1)
+  return(p)
 }
 
 
 
-#'@title Exponential power hazard detection function (with g(0)<1)
+#'@title Three-parameter exponential power hazard detection function 
 #' 
 #'@description  Inverse power hazard function, as per Borchers and Langrock (in press):
 #'Has form h(y,x)=theta[1]*exp(-(x^theta[3]+y^theta[3])/(theta[2]^theta[3])).
@@ -156,6 +222,75 @@ ep1=function(y,x,b)
   return(dF(y,x,theta)*g0)
 }
 
+
+#'@title Four-parameter inverse power hazard detection function
+#' 
+#'@description  Inverse power hazard function, as per Borchers and Langrock (in press):
+#'Has form h(y,x)=theta[1]*(1/(1+(x/theta[2])^2+(y/theta[4])^2))^(theta[3]+1).
+#'
+#'@references Borchers, D.L and Langrock, R."Double-observer line transect surveys with Markov-
+#'modulated Poisson process models for animal availability" Biometrics (in press).
+#'@param y Forward distance
+#'@param x perpendicular distance
+#'@param b parameter vector, where \code{b[1]} is plogis(theta[1]) \code{b[2]} is
+#'log(theta[2]), where \code{theta[2]} is the scale parameter for x, \code{b[3]} is log(theta[3])
+#'and \code{b[2]} is log(theta[4]), where \code{theta[4]} is the scale parameter for y. 
+#'@return probability of detection given that an animal is availabe at location x,y
+#'#'@examples
+#'b=c(-23.725809,-3.136638,2.122910,-3.136638)
+#'ip2(0.5,0.5,b=b)
+#'yy=seq(0,0.03,length=100);xx=rep(0,100)
+#'hh=ip2(yy,xx,b=b)
+#'plot(yy,hh,type="l")
+#' @export
+ip2=function(y,x,b)
+{
+  if(length(b)!=4) {
+    cat(b,"\n")
+    stop("b must be vector of length 3.")
+  }
+#  theta=exp(b[2:4])
+#  dF=function(y,x,theta) (1/(1+(x/theta[1])^2+(y/theta[3])^2))^(theta[2]+1)
+#  g0=plogis(b[1])
+#  return(dF(y,x,theta)*g0)
+  theta=exp(b)
+  p=theta[1]*(1/sqrt(1+(x/theta[2])^2+(y/theta[4])^2))^(theta[3]+1)
+  return(p)
+}
+
+
+
+#'@title Four-parameter exponential power hazard detection function
+#' 
+#'@description  Inverse power hazard function, as per Borchers and Langrock (in press):
+#'Has form h(y,x)=theta[1]*exp(-(x^theta[3]+y^theta[3])/(theta[2]^theta[3])).
+#'
+#'@references Borchers, D.L and Langrock, R."Double-observer line transect surveys with Markov-
+#'modulated Poisson process models for animal availability" Biometrics (in press).
+#'@param y Forward distance
+#'@param x perpendicular distance
+#'@param b parameter vector, where \code{b[1]} is plogis(theta[1]) \code{b[2]} is
+#'log(theta[2]), where \code{theta[2]} is the scale parameter for x, \code{b[3]} is log(theta[3])
+#'and \code{b[2]} is log(theta[4]), where \code{theta[4]} is the scale parameter for y. 
+#'@return probability of detection given that an animal is availabe at location x,y
+#'#'@examples
+#'b=c(1, -4, 1)
+#'ep1(0.5,0.5,b=b)
+#'yy=seq(0,0.03,length=100);xx=rep(0,100)
+#'hh=ep1(yy,xx,b=b)
+#'plot(yy,hh,type="l")
+#' @export
+ep2=function(y,x,b)
+{
+  if(length(b)!=4) {
+    cat(b,"\n")
+    stop("b must be vector of length 3.")
+  }
+  theta=exp(b[2:4])
+  dF=function(y,x,theta) exp(-((x/theta[1])^theta[2]+(y/theta[3])^theta[2]))
+  g0=plogis(b[1])
+  return(dF(y,x,theta)*g0)
+}
 
 
 #'@title Detection hazard function \code{h.exp2} prob(detect | available at x,y)
@@ -493,17 +628,6 @@ hr2.to.p=function(x,b,w){
 #'persp(gridx,gridy,t(f),theta=45,phi=35,zlab="f(y|x)")
 #'@export
 fyx=function(y,x,b,hr,ystart,nint=100)
-  #-------------------------------------------------------------------------------
-# Returns pdf  of "waiting distance" f(y,x)=h(y,x)*exp(-\int_y^ystart h(t,x) dt).
-# Inputs:
-#  y       : forward dist. (scalar or vector)
-#  x       : perp. dist. (scalar or vector)
-#  b: log(theta), where theta is vector of hazard rate parameters
-#  hr      : name of hazard rate function to use.
-#  ystart  : max forward distance at which could possibly detect animal.
-#            NB: need to ensure hazard has decayed to (very close to) zero by
-#            this distance
-#-------------------------------------------------------------------------------
 {
   if(length(y)!=length(x)) stop("Lengths of x and y must be the same.")
   n=length(x)
@@ -550,31 +674,22 @@ return(f)
 #'plot(gridx,p.x,type="l",ylim=c(0,max(p.x)),
 #' xlab="prep. distance, x",ylab="p(x)")
 #'@export
-px=function(x,b,hr,ystart,nint=100)
-  #-------------------------------------------------------------------------------
-# Returns perp dist detection function p(x).
-# Inputs:
-#  x       : perp. dist. (scalar or vector)
-#  b: log(theta), where theta is vector of hazard rate parameters
-#  hr      : name of hazard rate function to use.
-#  ystart  : max forward distance at which could possibly detect animal.
-#            NB: need to ensure hazard has decayed to (very close to) zero by
-#            this distance
-#  nint    : number of intervals for crude integration
-#            NB need to be careful crude integration grid is fine enough
-#-------------------------------------------------------------------------------
-{
-  n=length(x)
-  p=int=rep(NA,n)
-  dy=(ystart-0)/nint/2                          # for crude integration
-  y=seq(0,ystart,length=(nint+1))[-(nint+1)]+dy # for crude integration
-  for(i in 1:n) {
-    p[i]=min(1,sum(fyx(y,rep(x[i],nint),b,hr,ystart)*dy*2)) # constrain to max of 1
-    #    int=integrate(f=fyx,lower=0,upper=ystart,x=x[i],b=b,hr=hr,ystart=ystart)
-    #    p[i]=int$value
-  }
-  return(p)
-}
+#px=function(x,b,hr,ystart,nint=100)
+#{
+#  n=length(x)
+#  p=int=rep(NA,n)
+#  dy=(ystart-0)/nint/2                          # for crude integration
+#  y=seq(0,ystart,length=(nint+1))[-(nint+1)]+dy # for crude integration
+#  for(i in 1:n) {
+#    p[i]=min(1,sum(fyx(y,rep(x[i],nint),b,hr,ystart)*dy*2)) # constrain to max of 1
+#    #    int=integrate(f=fyx,lower=0,upper=ystart,x=x[i],b=b,hr=hr,ystart=ystart)
+#    #    p[i]=int$value
+#  }
+#  return(p)
+#}
+
+px=function(x,b,hr,ystart,nint=100) 1-Sy(x,rep(0.0001,length(x)),ystart,b,hr)
+
 
 #'@title Product of p(x) and pi(x)
 #'
@@ -633,31 +748,15 @@ p.pi.x=function(x,b,hr,ystart,pi.x,logphi,w)
 #'@seealso \code{\link{simXY}}
 #'@export
 negloglik.yx=function(y,x,pars,hr,ystart,pi.x,w,length.b=2)
-  #-------------------------------------------------------------------------------
-# Returns negative log likelihood for forward dist y and perp. dist. x.
-# Inputs:
-#  y       : forward distances (scalar or vector)
-#  x       : perp. distances (scalar or vector)
-#  pars    : c(b,logphi); haz rate and density log-parameters in a vector 
-#  hr      : name of hazard rate function to use.
-#  ystart  : max forward distance at which could possibly detect animal.
-#            NB: need to ensure hazard has decayed to (very close to) zero by
-#            this distance
-#  pi.x    : name of animal density function to use.
-#  w       : perp. truncation dist.
-# ------
-#  NOTE: code at *** must be changed if hr and pi.x don't have 2 pars each
-# ------
-#-------------------------------------------------------------------------------
 {
   if(length(y)!=length(x)) stop("Lengths of x and y must be the same.")
   
-  hr=match.fun(hr)
-  pi.x=match.fun(pi.x)
   n=length(y)
   # unpack parameters *** need to change if hr and pi.x don't have 2 pars each
   b=pars[1:length.b]
-  logphi=pars[(1+length.b):length(pars)]
+  if(as.character(substitute(pi.x))=="pi.const") logphi=NULL else logphi=pars[(1+length.b):length(pars)]
+#  hr=match.fun(hr)
+#  pi.x=match.fun(pi.x)
   llik=rep(NA,n)
   # caluclate numerator:
   num=sum(log(fyx(y,x,b,hr,ystart)) + log(pi.x(x,logphi,w)))
@@ -991,7 +1090,7 @@ fityx=function(y,x,b,hr,ystart,pi.x,logphi,w,control=list(),hessian=FALSE,corrFl
   }else{
       fit$logphi=NA
   }    # ***
-  fit$AIC=2*fit$value+length(fit$par)
+  fit$AIC=2*fit$value+2*length(fit$par)
   fit$dat=data.frame(x=x,y=y) # attach data to fitted object
   if(hessian){
     mNames=paste('b',1:length.b,sep='')
@@ -1424,8 +1523,9 @@ plotfit.y=function(y=NULL,x=NULL,est,nclass=10,breaks=NULL,plot=TRUE,lineonly=FA
   if(plot){
     ymax=ystart
     if(max.obs) ymax=max(y)
-    if(is.null(breaks)) breaks=seq(1e-10,ymax,length=(nclass+1)) 
-  
+    if(is.null(breaks)) breaks=seq(min(y,1e-10),ymax,length=(nclass+1)) 
+    fy.area=sum((fy.[-1]+fy.[-length(fy.)])/2*diff(gridy))
+    scaled.fy.=fy./fy.area
     if(lineonly) {
       if(add) lines(gridy,scaled.fy.,...)
       else plot(gridy,scaled.fy.,ylim=c(0,max(scaled.fy.)),type="l",

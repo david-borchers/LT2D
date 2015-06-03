@@ -2,7 +2,7 @@
 % Please edit documentation in R/2DLTfunctions.r
 \name{ep1}
 \alias{ep1}
-\title{Exponential power hazard detection function (with g(0)<1)}
+\title{Three-parameter exponential power hazard detection function}
 \usage{
 ep1(y, x, b)
 }
