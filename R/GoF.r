@@ -3,17 +3,14 @@
 #' @description
 #' Kolmogarov-Smirnov goodness-of-fit p-value calculation.
 #
-#' @param x value of Kolmogarov-distributed random variable at which to
-evaluate.
+#' @param x value of Kolmogarov-distributed random variable at which to evaluate.
 #' @param inf approximation to infinity (a large number).
 #' @param dp approximation convergence criterion.
 #' @return 1 - p-value for Kolmogarov distribution
 #' @details
-#' Calculates p-value for Kolmogarov distribution at x, approximating
-infite sum
+#' Calculates p-value for Kolmogarov distribution at x, approximating infite sum
 #' \code{sqrt(2*pi)/x*sum{i=1}^infty exp(-(2i-1)^2*pi^2/(8x^2)))}
-#' by a finite sum to inf (default 1000) if sum to inf and inf+1 differ
-by less
+#' by a finite sum to inf (default 1000) if sum to inf and inf+1 differ by less
 #' than dp (default 1e-4), else sum until difference is less than dp.
 p.kolomogarov=function(x,inf=1000,dp=1e-4)
 {
@@ -40,8 +37,8 @@ p.kolomogarov=function(x,inf=1000,dp=1e-4)
 #'@param fit object resulting from a call of \link{fityx}.
 #'@param plot=FALSE boolean TRUE - display Q-Q plot.
 #'@depends \link{p.kolomogarov}
-#'@details Calculates goodness-of-fit for forward distances and
-calculates p-values using kolomogarov and Cramer-von Mises.
+#'@details Calculates goodness-of-fit for forward distances and calculates p-values 
+#'using kolomogarov and Cramer-von Mises.
 #'@seealso \code{\link{fityx}}, \code{\link{}}
 #'
 #'@return
@@ -65,7 +62,7 @@ calculates p-values using kolomogarov and Cramer-von Mises.
 #'GoFy(fit=est.yx,plot=TRUE)
 #'}
 #'@seealso \code{\link{fityx}} \code{\link{p.kolomogarov}}
-\code{\link{GoFx}}
+#'\code{\link{GoFx}}
 #'@export
 GoFy=function(fit,plot=FALSE){
   ystart=fit$ystart
@@ -89,8 +86,7 @@ GoFy=function(fit,plot=FALSE){
   
   # K-S statistic
   dF=cdf-e.cdf
-  worst=which(abs(dF)==max(abs(dF))) # mark point on which Kolmogarov
-  test hinges
+  worst=which(abs(dF)==max(abs(dF))) # mark point on which Kolmogarov test hinges
   Dn=max(abs(dF))*sqrt(n)
   
   p.cvm=nortest::cvm.test(Fy0)$p.value
@@ -104,8 +100,7 @@ GoFy=function(fit,plot=FALSE){
     lines(c(0,1),c(1,0))
     mtext(paste('p-values: Cramer-von Mises=',round(p.cvm,2),' ;
                 kolomogarov=',round(p.kolomogarov,2)))
-    points(1-e.cdf[worst],cdf[worst],col="red") # mark point on which
-    Kolmogarov test hinges
+    points(1-e.cdf[worst],cdf[worst],col="red") # mark point on which Kolmogarov test hinges
   }
   
   return(data.frame(p.cvm=p.cvm,D.kolomogarov=Dn,p.kolomogarov=p.kolomogarov))
@@ -114,32 +109,25 @@ GoFy=function(fit,plot=FALSE){
 #' @title Goodness-of-fit in perpendicular dimension.
 #'
 #' @description
-#' Calculates goodness-of-fit in perpendicular dimension, plots fit, and
-returns p-value and
-#' other stuff. Returns two p-values: \code{p.ks} is the
-Kolmogarov-Smirnov p-value (which is
-                            #' based on only the largest difference between emprical and theoretical
-                            cdfs), and Cramer-von Mises
-#' p-value (which is based on all cdf values).
+#' Calculates goodness-of-fit in perpendicular dimension, plots fit, and returns p-value and
+#' other stuff. Returns two p-values: \code{p.ks} is the Kolmogarov-Smirnov p-value (which is
+#' based on only the largest difference between emprical and theoretical cdfs), and 
+#' Cramer-von Misesp-value (which is based on all cdf values).
 #
 #' @param hmltm fitted model, as output by \code{\link{est.hmltm}}
-#' @param plot If TRUE, does Q-Q plot. Point corresponding to largest
-difference between
-#' empirical and theoretical cdf (on which the Kolmogarov-Smirnov test
-is based) is circled in red.
+#' @param plot If TRUE, does Q-Q plot. Point corresponding to largest difference between
+#' empirical and theoretical cdf (on which the Kolmogarov-Smirnov test is based) is circled in red.
 #'@return
 #'data frame with these elements
 #'\code{$p.cvm} = Cramer-von Mises p-value.
 #'\code{$D.kolomogarov} = x value of Kolmogarov-distributed random variable
 #'\code{$p.kolomogarov} = kolomogarov p-value (which is
-#' based on only the largest difference between emprical and theoretical
-cdfs).
+#' based on only the largest difference between emprical and theoretical cdfs).
 #' \code{$qq.x} = empirical distribution function values.
 #'\code{$qq.y} = cumulative distribution function values.
 #'\code{$x} = x values.
 #'@depends nortest
-#'@seealso \code{\link{fityx}} \code{\link{p.kolomogarov}}
-\code{\link{GoFy}}
+#'@seealso \code{\link{fityx}} \code{\link{p.kolomogarov}} \code{\link{GoFy}}
 #' @examples
 #' #'\dontrun{
 #'ystart=0.05;w=0.03
@@ -185,8 +173,7 @@ GoFx=function(fit,plot=FALSE,nint=100){
   worst=which(abs(dF)==max(abs(dF)))
   Dn=max(abs(dF))*sqrt(n)
   p.ks=1-p.kolomogarov(Dn)
-  p.cvm=nortest::cvm.test(cdf)$p.value # Under model, cdf values are
-  from uniform; default for cvm.test is "punif"
+  p.cvm=nortest::cvm.test(cdf)$p.value # Under model, cdf values are from uniform; default for cvm.test is "punif"
   if(plot) {
     plot(edf,cdf,pch="+",xlim=c(0,1),ylim=c(0,1),
          xlab="Empirical Distribution Function",
@@ -200,5 +187,4 @@ GoFx=function(fit,plot=FALSE,nint=100){
   
   
   return(list(p.cvm=p.cvm,D.kolomogarov=Dn,p.kolomogarov=p.ks,qq.x=edf,qq.y=cdf,x=x[cdf.order]))
-}
 }
