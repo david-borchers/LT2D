@@ -11,13 +11,15 @@ h1(y, x, b)
 
 \item{x}{perpendicular distance}
 
-\item{b}{parameter vector, where \code{b[2]} is log(theta)}
+\item{b}{parameter vector, where \code{b[2]} is log(theta), and the function returns
+theta[1]*(y^2+x^2)^(-theta[2]/2).}
 }
 \value{
 probability of detection given that an animal is availabe at location x,y
 }
 \description{
-This hazard function has the form k(r,y)=a*r^(-b) from Hayes and Buckland (1983) p36.
+This hazard function has the form k(r,y)=a*r^(-b) from Hayes and Buckland (1983)
+p36. Note: This function uses x for perp. dist., they use y.
 }
 \examples{
 h1(0.5,0.5,b=log(c(0.001,1)))
@@ -26,6 +28,6 @@ h1(0.5,0.5,b=log(c(0.001,1)))
 Hayes, R. J., and S. T. Buckland. "Radial-distance models for the line-transect method." Biometrics (1983): 29-42.
 }
 \seealso{
-\code{\link{h2}}
+\code{\link{h2}}, \code{\link{ghy}}, \code{\link{ghy2}}
 }
 
