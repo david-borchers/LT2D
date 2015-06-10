@@ -15,6 +15,7 @@
 #'@export
 h1=function(y,x,b)
 {
+  fName='h1'
   ## Test comment.
   if(length(b)!=2) {
     cat(b,"\n")
@@ -46,11 +47,13 @@ h1=function(y,x,b)
 #'@export
 ghy=function(y,x,b)
 {
+  fName='ghy'
   if(length(b)!=3) {
     cat(b,"\n")
     stop("b must be vector of length 3.")
   }
   theta=exp(b)
+  #theta=c(exp(b[1:2]),b[3])
   theta1=theta[1]^(1/theta[2])
   return(((x/theta1)^2+((y+theta[3])/theta1)^2)^(-theta[2]/2))
 }
@@ -81,6 +84,8 @@ ghy=function(y,x,b)
 #'@export
 ghy2=function(y,x,b)
 {
+  
+  fName='ghy2'
   if(length(b)!=4) {
     cat(b,"\n")
     stop("b must be vector of length 4.")
@@ -114,6 +119,7 @@ h2=function(y,x,b)
 #  b: log(theta), where theta is vector of hazard rate parameters
 #-------------------------------------------------------------------------------
 {
+  fName='h2'
   if(length(b)!=2) {
     cat(b,"\n")
     stop("b must be vector of length 2.")
@@ -145,6 +151,7 @@ h21=function(y,x,b)
 #  b: log(theta), where theta is vector of hazard rate parameters
 #-------------------------------------------------------------------------------
 {
+  fName='h21'
   if(length(b)!=3) {
     cat(b,"\n")
     stop("b must be vector of length 3.")
@@ -176,6 +183,7 @@ h21=function(y,x,b)
 #' @export
 ip1=function(y,x,b)
 {
+  fName='ip1'
   if(length(b)!=3) {
     cat(b,"\n")
     stop("b must be vector of length 3.")
@@ -212,6 +220,7 @@ ip1=function(y,x,b)
 #' @export
 ep1=function(y,x,b)
 {
+  fName='ep1'
   if(length(b)!=3) {
     cat(b,"\n")
     stop("b must be vector of length 3.")
@@ -245,6 +254,7 @@ ep1=function(y,x,b)
 #' @export
 ip2=function(y,x,b)
 {
+  fName='ip2'
   if(length(b)!=4) {
     cat(b,"\n")
     stop("b must be vector of length 3.")
@@ -282,6 +292,7 @@ ip2=function(y,x,b)
 #' @export
 ep2=function(y,x,b)
 {
+  fName='ep2'
   if(length(b)!=4) {
     cat(b,"\n")
     stop("b must be vector of length 3.")
@@ -313,6 +324,7 @@ h.exp2=function(y,x,b=c(0,0))
 # (gama fixed equal to 2).
 #----------------------------------------------------------
 {
+  fName='h.exp2'
   mu=exp(b[1])
   sigma=exp(b[2])
   gama=2
@@ -339,6 +351,7 @@ h.okamura=function(y,x,b=c(0,0))
 # From Okamura's paper
 #----------------------------------------------------------
 {
+  fName='h.okamura'
   if(length(b)!=2) {
     cat(b,"\n")
     stop("b must be vector of length 2.")
@@ -361,7 +374,8 @@ h.okamura=function(y,x,b=c(0,0))
 #'h.const(0.5,0.5,b=1)
 #'@export
 #'@seealso \code{\link{h1}} \code{\link{h2}} \code{\link{h.exp2}} \code{\link{h.okamura}}
-h.const=function(y,x,b=1) return(rep(b[1],length(y)))
+h.const=function(y,x,b=1) {fName='h.const'
+  return(rep(b[1],length(y)))}
 
 #'@title Half-normal form for perpendicular animal density function
 #'
@@ -747,10 +761,10 @@ p.pi.x=function(x,b,hr,ystart,pi.x,logphi,w)
 #'negloglik.yx(y,x,pars,hr,ystart,pi.x,w)
 #'@seealso \code{\link{simXY}}
 #'@export
-negloglik.yx=function(y,x,pars,hr,ystart,pi.x,w,length.b=2)
+negloglik.yx=function(y,x,pars,hr,ystart,pi.x,w,length.b=2,debug=FALSE)
 {
   if(length(y)!=length(x)) stop("Lengths of x and y must be the same.")
-  
+  if(debug) print(pars)
   n=length(y)
   # unpack parameters *** need to change if hr and pi.x don't have 2 pars each
   b=pars[1:length.b]
@@ -1066,7 +1080,7 @@ negloglik.yx2=function(y,x,ps,hr,b,ys,pi.x,logphi,w)
 #'}
 #'@seealso \code{\link{negloglik.yx}}
 #'@export
-fityx=function(y,x,b,hr,ystart,pi.x,logphi,w,control=list(),hessian=FALSE,corrFlag=0.7,...)
+fityx=function(y,x,b,hr,ystart,pi.x,logphi,w,control=list(),hessian=FALSE,corrFlag=0.7,debug=FALSE,...)
 {
   piname=as.character(substitute(pi.x))
   hrname=as.character(substitute(hr))
@@ -1074,7 +1088,7 @@ fityx=function(y,x,b,hr,ystart,pi.x,logphi,w,control=list(),hessian=FALSE,corrFl
   length.b=length(b)
   fit=optim(par=pars,fn=negloglik.yx,y=y,x=x,hr=hr,ystart=ystart,pi.x=pi.x,w=w,
             length.b=length.b,
-            hessian=hessian,control=control,...)
+            hessian=hessian,debug=debug,control=control,...)
   fit$error=FALSE
   if(fit$convergence!=0){
     warning('Convergence issue (code = ', fit$convergence,') . Check optim() help.')
@@ -1894,24 +1908,30 @@ Sy=function(x,y,ymax,b,hfun) {
   if(length(y)!=n) stop("Lengths of x and y must be the same.")
   pS=rep(NA,n)
   if(is.character(hfun)) {
-    hchar=hfun
+    fName=hfun
     h=match.fun(hfun)
   }else {
-    hchar=as.character(substitute(hfun))
+    eval(parse(text=fNameFinder(hfun)))#this will create an object with the name fName that contains-
+    #-the name of the hazard rate function passed into the Sy hfun ARG. The fName object should-
+    #-only be available within the scope of the Sy function.
+    #hchar=as.character(substitute(hfun))
     h=hfun
   }
-  if(hchar=="h1") { # Hayes & Buckland hazard rate model, so can do analytically
+  
+  if(fName=="h1") { # Hayes & Buckland hazard rate model, so can do analytically
     hmax=h(y,x,b)
     for(i in 1:n){
       if(y[i]==0 | hmax[i]>1e10){ # computer will think integral divergent for large hmax
         pS[i]=1-HBhr(x[i],h1.to.HB(b))
       } else {
         pS[i]=exp(-integrate(match.fun(hfun),y[i],ymax,x=x[i],b=b)$value)
+        pS<<-pS[i]
       }
     }
   } else { # Not Hayes & Buckland hazard rate model, so can't do analytically
     for(i in 1:n){
       pS[i]=exp(-integrate(match.fun(hfun),y[i],ymax,x=x[i],b=b)$value)
+      pS2<<-pS[i]
     }
   }
   return(pS)
@@ -2155,4 +2175,38 @@ plotFit=function(fit,...){
           ylab="forward distance (y)",image=TRUE,...)      
   
 }
+
+#'Find a function name when the function is passed as an argument into other functions.
+#'
+#'@param x an R function/method that has not been evaluated.  
+#'@param fSearchSting='fName' function name search string
+#'@details The function passed into x the x argument must have the object \code{fSearchSting} 
+#'within its body.  The fSearchSting must be the only code on a line within the function,
+#'but can be placed anywhere in the function body, e.g. \code{fName='f1'}. See examples.
+#'@returns a character string e.g. "fName='f1'" that can be evaluated using 
+#'\code{eval(parse(text="fName='f1'") } either outside of a function, see example or within the scope of a function.
+#'@export
+#'@examples
+#'##Example 1 - check this approach works with nested functions
+#'f1=function(x) {
+#'fName='f1'
+#'x**2}
+#'
+#'f2=function(f,y){
+#'  res=f(x=y)
+#'  funcName1=fNameFinder(f)
+#'  return(list(res,funcName1))}
+#'
+#'f3=function(f,y){
+#'  res=f2(f,y)
+#'  return(res)}
+#'
+#'eval(parse(text=f3(f=f1,y=2)[[2]]))
+#'
+fNameFinder=function(x,fSearchSting='fName'){
+  x=as.character(attributes(x)[[1]]) #get attributes of function x
+  x=gsub(" ", "",x[grep(fSearchSting,x)], fixed = TRUE) #search for line in function body with 
+  return(x)}
+
+
 
