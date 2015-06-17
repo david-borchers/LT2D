@@ -83,15 +83,17 @@ return(out)
 #'@param n=NULL if n is a positive integer, simulator will run until number of observations equals n
 #'@param ymin=NULL if n is a positive real number, simulator will discard simulated positions <ymin
 #'@param optimx use the \code{\link{optimx::optimx()}} function for fitting, Default is FALSE.
+#'@param debug=FALSE additional output for debugging. See details
 #'@param ... other arguments to be passed into \link{\code{simXY}}
 #'@details  If n=NULL and ymin=NULL then use \link{\code{simXY}}.  When n!=NULL this function iteratively calls \link{\code{simXY}} until n simulated observations are reached.
 #'When ymin!=NULL this function discards simulated data with Y-coordinates <ymin.  It is intended that \code{ymin}
 #' is calculated by a call of \code{yDistForg} to determine the y distance at which g(y)= a required detection probability
+#' If \code{debug=TRUE} a list object including the model fit is returned. 
 #' @export
 #' @author Martin J. Cox
 #'@examples
-#'system.time({out=simulator(N=60,fit=fit.n.ip1,optimx=TRUE)})
-simulator=function(N=NULL,fit,n=NULL,ymin=NULL,optimx=FALSE)  {
+#'system.time({out=simulator(n=60,fit=fit.n.ip1,optimx=FALSE)})
+simulator=function(N=NULL,fit,n=NULL,ymin=NULL,optimx=FALSE,debug=FALSE)  {
   pi.x=match.fun(fit$pi.x);logphi=fit$logphi
   hr=match.fun(fit$hr);b=fit$b;w=fit$w;ystart=fit$ystart
   
@@ -128,9 +130,11 @@ simulator=function(N=NULL,fit,n=NULL,ymin=NULL,optimx=FALSE)  {
   
   if(length(mod)==1){
     warning('Model failed to converge')
+    if(debug) return(list(simVal=rep('convFail',25),fit=mod))
     return(rep('convFail',25))
   }
   if(any(is.na(mod$CVpar))) {warning('Hessian issue')
+    if(debug) return(list(simVal=rep('H',25),fit=mod))
     return(rep('H',25))
   }
   
@@ -192,5 +196,7 @@ simulator=function(N=NULL,fit,n=NULL,ymin=NULL,optimx=FALSE)  {
   parCV=mod$CVpar
   names(parCV)=paste('parEstCV',1:length(par),sep='')
   res=cbind.data.frame(res,t(par),t(parCV))
+  if(debug)
+    return(list(simVal=res,fit=mod))
   return(res)
 }
