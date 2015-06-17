@@ -761,7 +761,7 @@ p.pi.x=function(x,b,hr,ystart,pi.x,logphi,w)
 #'negloglik.yx(y,x,pars,hr,ystart,pi.x,w)
 #'@seealso \code{\link{simXY}}
 #'@export
-negloglik.yx=function(y,x,pars,hr,ystart,pi.x,w,length.b=2,debug=FALSE)
+negloglik.yx=function(pars,y,x,hr,ystart,pi.x,w,length.b=2,debug=FALSE)
 {
   if(length(y)!=length(x)) stop("Lengths of x and y must be the same.")
   if(debug) print(pars)
@@ -781,6 +781,8 @@ negloglik.yx=function(y,x,pars,hr,ystart,pi.x,w,length.b=2,debug=FALSE)
   denom=log(int$value)
   # likelihood:
   llik=num-n*denom
+  ##llik[is.nan(llik)]=-9e37
+  if(debug) print(llik)
   #message(-llik)
   return(-llik)
 }
@@ -1083,7 +1085,9 @@ negloglik.yx2=function(y,x,ps,hr,b,ys,pi.x,logphi,w)
 fityx=function(y,x,b,hr,ystart,pi.x,logphi,w,control=list(),hessian=FALSE,corrFlag=0.7,debug=FALSE,...)
 {
   piname=as.character(substitute(pi.x))
-  hrname=as.character(substitute(hr))
+  #hrname=as.character(substitute(hr))
+  eval(parse(text=fNameFinder(hr)))
+  hrname=fName#as.character(substitute(hr))
   if(piname=="pi.const") pars=b else pars=c(b,logphi)
   length.b=length(b)
   fit=optim(par=pars,fn=negloglik.yx,y=y,x=x,hr=hr,ystart=ystart,pi.x=pi.x,w=w,
@@ -1924,13 +1928,13 @@ Sy=function(x,y,ymax,b,hfun) {
       if(y[i]==0 | hmax[i]>1e10){ # computer will think integral divergent for large hmax
         pS[i]=1-HBhr(x[i],h1.to.HB(b))
       } else {
-        pS[i]=exp(-integrate(match.fun(hfun),y[i],ymax,x=x[i],b=b)$value)
+        pS[i]=exp(-integrate(match.fun(hfun),y[i],ymax,x=x[i],b=b,subdivisions = 1000L)$value)
         pS<<-pS[i]
       }
     }
   } else { # Not Hayes & Buckland hazard rate model, so can't do analytically
     for(i in 1:n){
-      pS[i]=exp(-integrate(match.fun(hfun),y[i],ymax,x=x[i],b=b)$value)
+      pS[i]=exp(-integrate(match.fun(hfun),y[i],ymax,x=x[i],b=b,subdivisions = 1000L)$value)
       pS2<<-pS[i]
     }
   }
