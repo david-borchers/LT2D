@@ -86,7 +86,8 @@ fityxOptimx=function(y,x,b,hr,ystart,pi.x,logphi,w,method="Nelder-Mead",
   require(optimx)
   require(numDeriv)
   piname=as.character(substitute(pi.x))
-  hrname=as.character(substitute(hr))
+  eval(parse(text=fNameFinder(hfun)))
+  hrname=fName#as.character(substitute(hr))
   if(piname=="pi.const") pars=b else pars=c(b,logphi)
   
   length.b=length(b)
