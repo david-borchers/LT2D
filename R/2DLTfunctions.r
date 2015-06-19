@@ -391,6 +391,7 @@ h.const=function(y,x,b=1) {fName='h.const'
 #'type='l',xlab='Perp. distance, x',ylab=expression(pi(x)))
 #'@export
 pi.hnorm=function(x,logphi,w){
+  fName='pi.hnorm'
   hnF=function(x,logphi) exp(-x^2/(2*exp(logphi[1])^2))
   return(hnF(x,logphi)/integrate(hnF,0,w,logphi)$value)
 }
@@ -409,6 +410,7 @@ pi.hnorm=function(x,logphi,w){
 #'type='l',xlab='Perp. distance, x',ylab=expression(pi(x)))
 #'@export
 pi.chnorm=function(x,logphi,w){
+  fName='pi.chnorm'
   chnF=function(x,logphi) 1-exp(-(x-logphi[1])^2/(2*exp(logphi[2])^2))
   return(chnF(x,logphi)/integrate(chnF,0,w,logphi)$value)
 }
@@ -435,6 +437,7 @@ pi.norm=function(x,logphi,w)
 #  w      : perp. truncation dist.
 #-------------------------------------------------------------------------------
 {
+  fName='pi.norm'
   if(length(logphi)!=2) {
     cat(logphi,"\n")
     stop("logphi must be vector of length 2.")
@@ -459,8 +462,9 @@ pi.norm=function(x,logphi,w)
 #'@examples
 #'plot(seq(0,1,length=100),pi.const(x=seq(0,1,length=100),w=1))
 #'@export
-pi.const=function(x,logphi=NULL,w)
-  return(rep(1/w,length(x)))
+pi.const=function(x,logphi=NULL,w){
+  fName='pi.const'
+  return(rep(1/w,length(x)))}
 
 
 
@@ -521,6 +525,7 @@ pi.hr1=function(x,logphi,w)
 #  w      : perp. truncation dist.
 #-------------------------------------------------------------------------------
 {
+  fName='pi.hr1'
   if(length(logphi)!=2) {
     cat(logphi,"\n")
     stop("logphi must be vector of length 2.")
@@ -548,6 +553,7 @@ pi.hr1=function(x,logphi,w)
 #' @seealso \code{\link{h1}} \code{\link{pi.hr1}}
 #' @export
 hr1.to.p=function(x,b,w){
+  fName='hr1.to.p'
   if(length(b)!=2) {
     cat(b,"\n")
     stop("b must be vector of length 2.")
@@ -589,6 +595,7 @@ pi.hr2=function(x,logphi,w)
 #  w      : perp. truncation dist.
 #-------------------------------------------------------------------------------
 {
+  fName='pi.hr2'
   if(length(logphi)!=2) {
     cat(logphi,"\n")
     stop("logphi must be vector of length 2.")
@@ -615,6 +622,7 @@ pi.hr2=function(x,logphi,w)
 #' xlab='Perp. distance, x', ylab='P(detect)',type='l')
 #' @export
 hr2.to.p=function(x,b,w){
+  fName='hr2.to.p'
   if(length(b)!=2) {
     cat(b,"\n")
     stop("b must be vector of length 2.")
@@ -1084,10 +1092,22 @@ negloglik.yx2=function(y,x,ps,hr,b,ys,pi.x,logphi,w)
 #'@export
 fityx=function(y,x,b,hr,ystart,pi.x,logphi,w,control=list(),hessian=FALSE,corrFlag=0.7,debug=FALSE,...)
 {
-  piname=as.character(substitute(pi.x))
-  #hrname=as.character(substitute(hr))
-  eval(parse(text=fNameFinder(hr)))
-  hrname=fName#as.character(substitute(hr))
+  if(is.function(hr)){
+    eval(parse(text=fNameFinder(hr)))
+    hrname=fName  
+  }else{
+    hrname=hr
+    hr=match.fun(hr)
+  }
+  
+  if(is.function(pi.x)){
+    eval(parse(text=fNameFinder(pi.x)))
+    piname=fName  
+  }else{
+    piname=pi.x
+    pi.x=match.fun(pi.x)
+  }
+  
   if(piname=="pi.const") pars=b else pars=c(b,logphi)
   length.b=length(b)
   fit=optim(par=pars,fn=negloglik.yx,y=y,x=x,hr=hr,ystart=ystart,pi.x=pi.x,w=w,

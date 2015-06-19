@@ -85,9 +85,22 @@ fityxOptimx=function(y,x,b,hr,ystart,pi.x,logphi,w,method="Nelder-Mead",
 {
   require(optimx)
   require(numDeriv)
-  piname=as.character(substitute(pi.x))
-  eval(parse(text=fNameFinder(hfun)))
-  hrname=fName#as.character(substitute(hr))
+  
+  if(is.function(hr)){
+    eval(parse(text=fNameFinder(hr)))
+    hrname=fName  
+  }else{
+    hrname=hr
+    hr=match.fun(hr)
+  }
+  
+  if(is.function(pi.x)){
+    eval(parse(text=fNameFinder(pi.x)))
+    piname=fName  
+  }else{
+    piname=pi.x
+    pi.x=match.fun(pi.x)
+  }
   if(piname=="pi.const") pars=b else pars=c(b,logphi)
   
   length.b=length(b)
