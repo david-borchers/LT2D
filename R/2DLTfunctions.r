@@ -217,6 +217,7 @@ ip1=function(y,x,b)
 #' @export
 ip0=function(y,x,b)
 {
+  fName='ip0'
   if(length(b)!=2) {
     cat(b,"\n")
     stop("b must be vector of length 2.")
