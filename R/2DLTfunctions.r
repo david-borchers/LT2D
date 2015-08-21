@@ -1618,6 +1618,47 @@ plotfit.y=function(y=NULL,x=NULL,est,nclass=10,breaks=NULL,plot=TRUE,dotitle=FAL
 }
 
 
+#'@title Plot smooth fitted f(y) and forward distance distribution for small xs
+#'
+#'@description Plot spline smooth of f(y) and forward distance distribution 
+#'resulting from a call of \code{\link{plotfit.y}}.
+#'
+#'@param fit fitted object output by \code{\link{fityx}}
+#'@param nclass number of histogram bins to use
+#'@param xmax maxumum perp. dist. to use
+#'
+#'@details Plot f(y) and forward distance distribution resulting from a call of 
+#'\code{\link{fityx}}. This is a post-hoc fix of \link{\code{plotfit.y}}, which 
+#'produces f(y) with some sharp and implausible bends.
+#'
+#'@return
+#'Invisibly returns a list with these elements
+#'hst=hst,y=ys,smfy=smfy
+#'\code{$hst} = histogram object from call to \link{\code{hist}}, containing data for 
+#'histogram of the detections within perp. dist \code{xmax}.
+#'\code{$y} = y values for plot of smooth f(y)
+#'\code{$smfy} = smooth f(y)
+#'
+#'@seealso \code{\link{fityx}}
+#'@export
+plotfit.smoothfy=function(fit,nclass=12,xmax=max(fit$dat$x),main="") {
+  near0=which(fit$dat$x<=xmax)
+  ys=fit$dat$y[near0]
+  ymax=max(ys)
+  breaks=seq(0,ymax,length=(nclass+1))
+  fy=plotfit.y(ys,rep(0,length(ys)),fit,nclass=nclass,nint=100,plot=FALSE)
+  sm=splinefun(fy$gridy,fy$scaled.fy.,method="monoH.FC")
+  hst=hist(ys,breaks=breaks,plot=FALSE)
+  xs=seq(0,ymax,length=100)
+  smfy=sm(xs) # smooth of curve
+  ymax=max(smfy,hst$density)
+  hist(ys,xlab="Forward distance (y)",ylab="Density",breaks=breaks,freq=FALSE,ylim=c(0,ymax))
+  lines(xs,smfy)
+  invisible(list(hst=hst,y=ys,smfy=smfy))
+}
+
+
+
 
 #'@title Calculate coverage probabilities of \eqn{\hat p} for simulated data
 #'
