@@ -1625,6 +1625,7 @@ plotfit.y=function(y=NULL,x=NULL,est,nclass=10,breaks=NULL,plot=TRUE,dotitle=FAL
 #'
 #'@param fit fitted object output by \code{\link{fityx}}
 #'@param nclass number of histogram bins to use
+#'@param nfys number of points to use in plotting smooth
 #'@param xmax maxumum perp. dist. to use
 #'
 #'@details Plot f(y) and forward distance distribution resulting from a call of 
@@ -1641,7 +1642,7 @@ plotfit.y=function(y=NULL,x=NULL,est,nclass=10,breaks=NULL,plot=TRUE,dotitle=FAL
 #'
 #'@seealso \code{\link{fityx}}
 #'@export
-plotfit.smoothfy=function(fit,nclass=12,xmax=max(fit$dat$x),main="") {
+plotfit.smoothfy=function(fit,nclass=12,nfys=200,xmax=max(fit$dat$x),main="",plot=TRUE) {
   near0=which(fit$dat$x<=xmax)
   ys=fit$dat$y[near0]
   ymax=max(ys)
@@ -1649,7 +1650,7 @@ plotfit.smoothfy=function(fit,nclass=12,xmax=max(fit$dat$x),main="") {
   fy=plotfit.y(ys,rep(0,length(ys)),fit,nclass=nclass,nint=100,plot=FALSE)
   sm=splinefun(fy$gridy,fy$scaled.fy.,method="monoH.FC")
   hst=hist(ys,breaks=breaks,plot=FALSE)
-  xs=seq(0,ymax,length=100)
+  xs=seq(0,ymax,length=nfys)
   smfy=sm(xs) # smooth of curve
   ymax=max(smfy,hst$density)
   hist(ys,xlab="Forward distance (y)",ylab="Density",breaks=breaks,freq=FALSE,ylim=c(0,ymax))
