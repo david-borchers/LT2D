@@ -1647,13 +1647,13 @@ plotfit.smoothfy=function(fit,nclass=12,nfys=200,xmax=max(fit$dat$x),main="",plo
   ys=fit$dat$y[near0]
   ymax=max(ys)
   breaks=seq(0,ymax,length=(nclass+1))
-  fy=plotfit.y(ys,rep(0,length(ys)),fit,nclass=nclass,nint=100,plot=FALSE)
+  fy=plotfit.y(ys,fit$dat$x[near0],fit,nclass=nclass,nint=100,plot=FALSE)
   sm=splinefun(fy$gridy,fy$scaled.fy.,method="monoH.FC")
   hst=hist(ys,breaks=breaks,plot=FALSE)
   xs=seq(0,ymax,length=nfys)
   smfy=sm(xs) # smooth of curve
   ymax=max(smfy,hst$density)
-  hist(ys,xlab="Forward distance (y)",ylab="Density",breaks=breaks,freq=FALSE,ylim=c(0,ymax))
+  hist(ys,xlab="Forward distance (y)",ylab="Density",breaks=breaks,main=main,freq=FALSE,ylim=c(0,ymax))
   lines(xs,smfy)
   invisible(list(hst=hst,y=ys,smfy=smfy))
 }
