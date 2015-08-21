@@ -1496,9 +1496,9 @@ plotfit.x=function(x,est,nclass=10,nint=100,
     # overlay animal pdf:
     lines(gridx,adbn,lty=3,col="black",lwd=2)
     
-    if(addTruth) legend("topright",title="Estimated",legend=c("f(x)","p(x)","pi(x)"),
-           col=c("black","black","black"),lwd=c(2,2,2),lty=c(1,2,3))
-    else legend("topright",legend=c("f(x)","p(x)","pi(x)"),
+    if(addTruth) legend("topright",title="Estimated",legend=c("f(x)","p(x)",expression(pi(x)),
+           col=c("black","black","black"),lwd=c(2,2,2),lty=c(1,2,3)))
+    else legend("topright",legend=c("f(x)","p(x)",expression(pi(x))),
                 col=c("black","black","black"),lwd=c(2,2,2),lty=c(1,2,3))
     if(addTruth){
       lines(gridx,f.x,col="grey",lwd=2)
