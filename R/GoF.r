@@ -108,14 +108,14 @@ GoFy=function(fit,plot=FALSE,dotitle=FALSE){
   if(plot){
     main=""
     if(dotitle) main="Forward Dist. Q-Q Plot"
-    plot(1-e.cdf,cdf,xlab="Empirical Distribution Function",
+    plot(e.cdf,cdf,xlab="Empirical Distribution Function",
          ylab="Cumulative Distribution Function",
          main=main,
-         xlim=c(0,1),ylim=c(0,1),pch="+")
-    lines(c(0,1),c(1,0))
+         xlim=c(1,0),ylim=c(0,1),pch="+")
+    lines(c(0,1),c(0,1))
     if(dotitle) mtext(paste('p-values: Cramer-von Mises=',round(p.cvm,2),' ;
                 kolomogarov=',round(p.kolomogarov,2)))
-    points(1-e.cdf[worst],cdf[worst],col="red") # mark point on which Kolmogarov test hinges
+    points(e.cdf[worst],cdf[worst],col="red") # mark point on which Kolmogarov test hinges
   }
   
   pvals=c(p.cvm,p.kolomogarov);names(pvals)=c("Cramer-von Mises","Kolmogarov-Smirnov")
