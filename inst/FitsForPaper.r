@@ -4,12 +4,9 @@ library(goftest)
 
 # Primate data:
 # =============
-dat=read.xlsx("./data/Jantho Primate Line.xlsx",1)
-x=dat$PP.Distance
-y=dat$Forward.Distance
-nas=which(is.na(y))
-x=x[-nas]
-y=y[-nas]
+data(primate.dat)
+x=primate.dat$x
+y=primate.dat$y
 
 quartz(h=3,w=12)
 par(mfrow=c(1,3))
@@ -214,18 +211,15 @@ phatInterval(fit.n.ip1)
 
 # Dolphin data:
 # ============
-adat=read.xlsx("./data/AnasData.xlsx",1)
-rdist=adat$Radial.distance
-ang=adat$Angle
-xd=abs(rdist*sin(ang*pi/180))
-yd=abs(rdist*cos(ang*pi/180))
-size=adat$Cluster.size
+data(dolphin.dat)
+xd=dolphin.dat$x
+yd=dolphin.dat$y
+
 wd=0.15;ystartd=0.55
 quartz(h=3,w=12)
 par(mfrow=c(1,3))
 pdlab="Perpendicular distance"
 fdlab="Forward distance"
-#plot(jitter(yd[xd<=wd],1,0),jitter(xd[xd<=wd],1,0),pch="+",ylab=pdlab,xlab=fdlab,main="",cex=round(log(size[xd<=wd])))
 plot(jitter(yd[xd<=wd],1,0),jitter(xd[xd<=wd],1,0),pch="+",ylab=pdlab,xlab=fdlab,main="")
 hist(yd[xd<=wd],breaks=seq(0,max(yd[xd<=wd]),length=26),xlab=fdlab,main="")
 hist(xd[xd<=wd],breaks=seq(0,max(xd[xd<=wd]),length=19),xlab=pdlab,main="")
