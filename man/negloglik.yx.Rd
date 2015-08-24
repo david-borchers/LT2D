@@ -4,14 +4,14 @@
 \alias{negloglik.yx}
 \title{Negative log-likelihood for forward distance and perpendicular distance}
 \usage{
-negloglik.yx(y, x, pars, hr, ystart, pi.x, w, length.b = 2)
+negloglik.yx(pars, y, x, hr, ystart, pi.x, w, length.b = 2, debug = FALSE)
 }
 \arguments{
+\item{pars}{c(b,logphi); hazard rate and density log-parameters in a vector (see details).}
+
 \item{y}{scalar or vector; forward distance observations}
 
 \item{x}{scale or vector; perp. distance observations}
-
-\item{pars}{c(b,logphi); hazard rate and density log-parameters in a vector (see details).}
 
 \item{hr}{hazard rate function}
 

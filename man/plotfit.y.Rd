@@ -5,8 +5,8 @@
 \title{Plot fitted f(y) and forward distance distribution}
 \usage{
 plotfit.y(y = NULL, x = NULL, est, nclass = 10, breaks = NULL,
-  plot = TRUE, lineonly = FALSE, nint = 100, max.obs = TRUE,
-  add = FALSE, ...)
+  plot = TRUE, dotitle = FALSE, lineonly = FALSE, nint = 100,
+  max.obs = TRUE, add = FALSE, ...)
 }
 \arguments{
 \item{y}{forward distance observations (if NULL, uses est$dat$y)}

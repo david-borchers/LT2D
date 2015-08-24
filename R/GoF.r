@@ -36,7 +36,6 @@ p.kolomogarov=function(x,inf=1000,dp=1e-4)
 #'
 #'@param fit object resulting from a call of \link{fityx}.
 #'@param plot=FALSE boolean TRUE - display Q-Q plot.
-#'@depends \link{p.kolomogarov}
 #'@details Calculates goodness-of-fit for forward distances and calculates p-values 
 #'using kolomogarov and Cramer-von Mises.
 #'@seealso \code{\link{fityx}}, \code{\link{}}
@@ -187,10 +186,9 @@ HBhr=function(x,theta) 1-exp(-theta[1]*x^(-(theta[2]-1)))
 #' \code{$qq.x} = empirical distribution function values.
 #'\code{$qq.y} = cumulative distribution function values.
 #'\code{$x} = x values.
-#'@depends goftest
 #'@seealso \code{\link{fityx}} \code{\link{p.kolomogarov}} \code{\link{GoFy}}
 #' @examples
-#' #'\dontrun{
+#'\dontrun{
 #'ystart=0.05;w=0.03
 #'logphi=c(0.0180552, -4.4215995)
 #'b=c(-23.725809,  -3.136638  , 2.122910)
@@ -204,7 +202,7 @@ HBhr=function(x,theta) 1-exp(-theta[1]*x^(-(theta[2]-1)))
 #' plotfit.x(x=x,est=est.yx)
 #' rug(x=est.yx$dat$x)
 #' tst=GoFx(fit=est.yx,plot=TRUE)
-
+#' }
 GoFx=function(fit,plot=FALSE,nint=100,dotitle=FALSE){
   ystart=fit$ystart
   w=fit$w

@@ -5,8 +5,8 @@
 \title{Plot fitted hazard and perpendicular denisty distribution}
 \usage{
 plotfit.x(x, est, nclass = 10, nint = 100, plot = TRUE,
-  addTruth = FALSE, true.pi.x = NULL, true.logphi = NULL,
-  true.hr = NULL, true.b = NULL, N = NULL, ...)
+  dotitle = "FALSE", addTruth = FALSE, true.pi.x = NULL,
+  true.logphi = NULL, true.hr = NULL, true.b = NULL, N = NULL, ...)
 }
 \arguments{
 \item{x}{perpendicular distance observations}

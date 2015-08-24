@@ -198,6 +198,8 @@ ip1=function(y,x,b)
 }
 
 
+#'@title Inverse power hazard detection function 
+#' 
 #'@description  Inverse power hazard function, as per Borchers and Langrock (in press):
 #'Has form h(y,x)=theta[1]*(1/sqrt(1+(x)^2+(y)^2))^(theta[2]+1).
 #'
@@ -2268,7 +2270,6 @@ plotFit=function(fit,...){
                          ystart=fit$ystart))
   plotSim(simDat=obj, nclass=10,xlab="perpendicular distance (x)", 
           ylab="forward distance (y)",image=TRUE,...)      
-  
 }
 
 #'Find a function name when the function is passed as an argument into other functions.
@@ -2278,7 +2279,7 @@ plotFit=function(fit,...){
 #'@details The function passed into x the x argument must have the object \code{fSearchSting} 
 #'within its body.  The fSearchSting must be the only code on a line within the function,
 #'but can be placed anywhere in the function body, e.g. \code{fName='f1'}. See examples.
-#'@returns a character string e.g. "fName='f1'" that can be evaluated using 
+#'@return Returns a character string e.g. "fName='f1'" that can be evaluated using 
 #'\code{eval(parse(text="fName='f1'") } either outside of a function, see example or within the scope of a function.
 #'@export
 #'@examples
