@@ -416,11 +416,11 @@ pdlab="Perpendicular distance"
 fdlab="Forward distance"
 quartz(h=5,w=12);par(mfrow=c(1,2))
 plot(jitter(y,1,0),jitter(x),pch="+",ylab=pdlab,xlab=fdlab,main="")
-lines(c(-1,1.1*max(y)),rep(w,2),lty=2,col="gray")
-lines(c(-1,1.1*max(y)),rep(xmax,2),lty=3,col="gray")
+lines(c(-1,1.1*max(y)),rep(w,2),lty=2,col="black")
+#lines(c(-1,1.1*max(y)),rep(xmax,2),lty=3,col="gray")
 plot(jitter(yd,1,0),jitter(xd,1,0),pch="+",ylab=pdlab,xlab=fdlab,main="")
-lines(c(-1,1.1*max(yd)),rep(wd,2),lty=2,col="gray")
-lines(c(-1,1.1*max(yd)),rep(xdmax,2),lty=3,col="gray")
+lines(c(-1,1.1*max(yd)),rep(wd,2),lty=2,col="black")
+#lines(c(-1,1.1*max(yd)),rep(xdmax,2),lty=3,col="gray")
 
 # Primate fits:
 # -------------
