@@ -23,7 +23,7 @@ You can install the `LT2D` package directly from github using `devtools` (Wickha
 ``` r
 if(!"devtools" %in% rownames(installed.packages())) {install.packages("devtools")}
 devtools::install_github('david-borchers/LT2D')
-library(LT2D)
+library(LT2D) 
 ```
 
 Please cite \`LT2D' when you use it:
