@@ -1,6 +1,4 @@
 library(LT2D)
-library(xlsx)
-library(goftest)
 
 # Primate data:
 # =============
@@ -13,9 +11,7 @@ par(mfrow=c(1,3))
 pdlab="Perpendicular distance"
 fdlab="Distance along transect"
 sp=unique(dat$species)
-#plot(jitter(y,1,0),jitter(x),pch="+",ylab=pdlab,xlab=fdlab,main="",col=sp)
 plot(jitter(y,1,0),jitter(x),pch="+",ylab=pdlab,xlab=fdlab,main="")
-#legend("topright",legend=sp,col=sp,pch="+",title="species",cex=0.75)
 hist(y,breaks=seq(0,max(na.omit(y)),length=16),xlab=fdlab,main="")
 hist(x,breaks=seq(0,max(na.omit(x)),length=12),xlab=pdlab,main="")
 
@@ -133,7 +129,7 @@ plotfit.smoothfy(fit.n.ep1,xmax=0.004)
 b2=c(fit.n$b,-10) # exact same model but in ghy terms
 b2=c(-19.42374920,2.05969961,-3.36703594)
 logphi=fit.n$logphi
-logphi=c(,0.01230915,-4.71841683)
+
 fit.ghy=fityx(y[x<=w],x[x<=w],b=b2,hr=ghy,ystart=ystart,
               pi.x=pi.norm,logphi=logphi,w=w,hessian=TRUE,control=list(trace=5,maxit=2000))
 plotfit.x(x[x<=w],fit.ghy,nclass=20);rug(x[x<=w])
@@ -458,8 +454,3 @@ plotfit.smoothfy(dfit.hn,xmax=xdmax)
 quartz(h=3.5);par(mfrow=c(1,2))
 plot(fit.hr,nc=20,showpoints=FALSE,pl.den=0)
 plot(dfit.hr.d,nc=14,showpoints=FALSE,pl.den=0)
-
-
-
-
-

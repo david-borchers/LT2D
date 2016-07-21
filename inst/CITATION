@@ -1,0 +1,17 @@
+citHeader("To cite 2DLT in publications use:")
+
+citEntry(entry = "Article",
+         title        = "Distance sampling detection functions: 2D or not 2D?",
+         author       = personList(as.person("David L Borchers"), as.person("Martin J Cox")),
+         journal      = "Biometrics",
+         year         = "2016",
+         volume       = "-",
+         number       = "-",
+         doi          = "10.1111/---",
+         
+         textVersion  =
+           paste("Borchers DL and Cox MJ, (2015).",
+                 "Distance sampling detection functions: 2D or not 2D?",
+                 "Biometrics, -:--,",
+                 "10.1111/---")
+)

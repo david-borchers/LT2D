@@ -7,11 +7,11 @@
 #' transects in primary tropical rainforest.
 #' @usage primate.dat
 #' @format A list with elements x (perpendicular distance) and y (forward distance).
-#' @source We are gerateful to Matthew Nowak from the Sumatran Orangutan Conservation 
+#' @source We are grateful to Matthew Nowak from the Sumatran Orangutan Conservation 
 #' Programme (SOCP) for allowing us to use the primate survey data from the Jantho 
 #' Reintroduction Station. The initial survey was developed by Matthew Nowak and Serge 
 #' Wich (Liverpool John Moores University) and then undertaken by the SOCP with funding 
-#' from Chester Zoo. .
+#' from Chester Zoo.
 #' @examples
 #'  data(primate.dat)
 NULL
