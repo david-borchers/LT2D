@@ -174,4 +174,4 @@ Dhat=(n/phatInterval(dfit.hn)$phat)/(2*wd*L)
 Dhat
 ```
 
-R code to run all the model fits in the paper is available in the file 'FitsForPaper.r'.
+R code to run all the model fits in the paper is available in the file './inst/FitsForPaper.r'.
