@@ -143,6 +143,7 @@ Again, we selected the hazard and perpendicular density functions using AIC. The
 ``` r
 b=c(-7.3287948, 0.9945317)
 logphi=-0.4811025
+ystartd = 0.45
 dfit.hn=fityx(yd[xd<=wd],xd[xd<=wd],b=b,hr=h1,ystart=ystartd,
               pi.x=pi.hnorm,logphi=logphi,w=wd,hessian=TRUE,control=list(trace=5))
 ```
