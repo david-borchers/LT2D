@@ -127,6 +127,7 @@ A perpendicular truncation distance, \(w\), of and a maximum forward distance, \
 data(dolphin.dat)
 xd=dolphin.dat$x
 yd=dolphin.dat$y
+wd = 0.15
 
 openGraph(h=3,w=12)
 par(mfrow=c(1,3))
